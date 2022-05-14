@@ -1,0 +1,4 @@
+Name         = Advanced Pokemon Level Balancing
+Version      = 1.0.0
+Website      = https://www.pokecommunity.com/showthread.php?t=409828&highlight=scaling
+Credits      = Benitex, Joltik, Umbreon
