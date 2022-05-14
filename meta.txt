@@ -8,9 +8,11 @@ Credits      = Benitex, Joltik, Umbreon
 #===============================================================================
 # The first thing you should do is check if you're already using variables 99 and 100 in your game. These are the variables that control trainer and wild pokemon difficulty, respectively.
 # If you are already using these variables, go to the Settings.rb script and change the value to whichever variable you want to use to change the difficulty.
-# In order to change the difficulty, you should use an event to change the variable value according to the following values:
-#   0 = disabled.
-#   1 = easy.
-#   2 = medium.
-#   3 = hard.
+#
+# In order to change the difficulty, you should use an event to change the variable value according to the pre-defined difficulties.
+# There are 3 predefined difficulties, but you can add your own new ones by using the function "Difficulty.new(id, random_increase, fixed_increase)".
+#  "id" is the value stored in TRAINERVARIABLE or WILDVARIABLE
+#  "random_increase" is a random value that increases the pokemon level
+#  "fixed_increase" is a pre-defined value that increases the pokemon level
+# Note that these variables can also store negative values.
 #

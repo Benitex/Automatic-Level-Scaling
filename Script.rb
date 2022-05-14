@@ -28,20 +28,30 @@ Events.onTrainerPartyLoad += proc { |_sender, trainer|
   end
 }
 
-def scaleLevel(pokemon, difficulty)
+def scaleLevel(pokemon, selectedDifficulty)
   new_level = pbBalancedLevel($Trainer.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
 
   # Difficulty modifiers
-  if $game_variables[difficulty] == 1       # Easy
-    new_level += rand(2) - 2
-  elsif $game_variables[difficulty] == 2    # Normal
-    new_level += rand(2)
-  else                                      # Hard
-    new_level += rand(3) + 3
+  for difficulty in LevelScalingSettings::DIFICULTIES do
+    if difficulty.id == selectedDifficulty
+      new_level += rand(difficulty.random_increase) + difficulty.fixed_increase
+    end
   end
 
   new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
   pokemon.level = new_level
   pokemon.calc_stats
   pokemon.reset_moves
+end
+
+class Difficulty
+  attr_accessor :id
+  attr_accessor :random_increase
+  attr_accessor :fixed_increase
+
+  def initialize(id, random_increase, fixed_increase)
+    @id = id
+    @random_increase = random_increase
+    @fixed_increase = fixed_increase
+  end
 end
