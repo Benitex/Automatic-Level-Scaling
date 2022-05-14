@@ -1,7 +1,7 @@
-################################################################################
+#===============================================================================
 # Advanced Pokemon Level Balancing
 # By Benitex
-################################################################################
+#===============================================================================
 
 Events.onWildPokemonCreate += proc { |_sender, e|
   pokemon = e[0]
@@ -51,12 +51,30 @@ def setNewLevel(pokemon, selectedDifficulty)
 end
 
 def setNewStage(pokemon)
+  evolvedTimes = 0
+  # Species that only evolve by level up
   pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first evolution
   while pokemon.check_evolution_on_level_up != nil
     pokemon.species = pokemon.check_evolution_on_level_up
+    evolvedTimes += 1
   end
-  if pokemon.check_evolution_on_trade(self) && pokemon.level > LevelScalingSettings::TRADE_EVOLUTION_LEVEL
+  # Species that only evolve by trade
+  while pokemon.check_evolution_on_trade(self) != nil && pokemon.level > LevelScalingSettings::TRADE_EVOLUTION_LEVEL
     pokemon.species = pokemon.check_evolution_on_trade(self)
+    evolvedTimes += 1
+  end
+
+  # For species with other evolving methods
+  while evolvedTimes <= 2
+    evolutions = GameData::Species.get(pokemon.species).get_evolutions(false)
+
+    if evolutions.length == 1 && pokemon.level >= LevelScalingSettings::OTHER_FIRST_EVOLUTION_LEVEL
+      pokemon.species = evolutions[0][0]
+    elsif evolutions.length > 1 && pokemon.level >= LevelScalingSettings::OTHER_SECOND_EVOLUTION_LEVEL
+      pokemon.species = evolutions[rand(0, evolutions.length)][0]
+    end
+
+    evolvedTimes += 1
   end
 end
 

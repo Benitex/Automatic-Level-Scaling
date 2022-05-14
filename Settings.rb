@@ -1,3 +1,8 @@
+#===============================================================================
+# Advanced Pokemon Level Balancing Settings
+# By Benitex
+#===============================================================================
+
 module LevelScalingSettings
   # These two above are the variable that controls battle's difficulty
   TRAINER_VARIABLE = 99
@@ -18,5 +23,6 @@ module LevelScalingSettings
   UPDATE_MOVES = true
 
   TRADE_EVOLUTION_LEVEL = 40
-
+  OTHER_FIRST_EVOLUTION_LEVEL = 15  # Evolution to the mid form by happiness, items, etc.
+  OTHER_SECOND_EVOLUTION_LEVEL = 40 # Evolution to the last form by happiness, items, etc.
 end
