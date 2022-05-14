@@ -51,10 +51,12 @@ def setNewLevel(pokemon, selectedDifficulty)
 end
 
 def setNewStage(pokemon)
-  species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first evolution
-  pokemon.species = species
-  while pokemon.check_evolution_on_level_up() != nil
+  pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first evolution
+  while pokemon.check_evolution_on_level_up != nil
     pokemon.species = pokemon.check_evolution_on_level_up
+  end
+  if pokemon.check_evolution_on_trade(self) && pokemon.level > LevelScalingSettings::TRADE_EVOLUTION_LEVEL
+    pokemon.species = pokemon.check_evolution_on_trade(self)
   end
 end
 
