@@ -2,3 +2,15 @@ Name         = Advanced Pokemon Level Balancing
 Version      = 1.0.0
 Website      = https://www.pokecommunity.com/showthread.php?t=409828&highlight=scaling
 Credits      = Benitex, Joltik, Umbreon
+
+#===============================================================================
+# How to use
+#===============================================================================
+# The first thing you should do is check if you're already using variables 99 and 100 in your game. These are the variables that control trainer and wild pokemon difficulty, respectively.
+# If you are already using these variables, go to the Settings.rb script and change the value to whichever variable you want to use to change the difficulty.
+# In order to change the difficulty, you should use an event to change the variable value according to the following values:
+#   0 = disabled.
+#   1 = easy.
+#   2 = medium.
+#   3 = hard.
+#
