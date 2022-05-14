@@ -15,4 +15,5 @@ Credits      = Benitex, Joltik, Umbreon
 #  "random_increase" is a random value that increases the pokemon level
 #  "fixed_increase" is a pre-defined value that increases the pokemon level
 # Note that these variables can also store negative values.
+# Lastly, you can also disable automatic evolutions and new moves in this same file if you'd like.
 #
