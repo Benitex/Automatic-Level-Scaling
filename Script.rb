@@ -52,45 +52,51 @@ end
 
 def setNewStage(pokemon, selectedDifficulty)
   evolvedTimes = 0
-  # Species that only evolve by level up
   pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
-  while pokemon.check_evolution_on_level_up != nil
-    pokemon.species = pokemon.check_evolution_on_level_up
-    evolvedTimes += 1
-  end
-  # Species that only evolve by trade
-  while pokemon.check_evolution_on_trade(self) != nil && pokemon.level > LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL
-    pokemon.species = pokemon.check_evolution_on_trade(self)
-    evolvedTimes += 1
-  end
 
-  # For species with other evolving methods
-  while evolvedTimes <= 2
+  while evolvedTimes < 2
     evolutions = GameData::Species.get(pokemon.species).get_evolutions(false)
 
-    # Checks if the pokemon is in it's midform and defines the level to evolve
-    if evolvedTimes > 0
-      for difficulty in LevelScalingSettings::DIFICULTIES do
-        if difficulty.id == selectedDifficulty
-          level = difficulty.secund_evolution_level
-        end
+    # Checks if the species only evolve by level up
+    other_evolving_method = false
+    i = 0
+    while i < evolutions.length
+      if evolutions[i][1] != :Level
+        other_evolving_method = true
       end
-      # level = LevelScalingSettings::OTHER_SECOND_EVOLUTION_LEVEL
-    else
-      for difficulty in LevelScalingSettings::DIFICULTIES do
-        if difficulty.id == selectedDifficulty
-          level = difficulty.first_evolution_level
-        end
-      end
-      # level = LevelScalingSettings::OTHER_FIRST_EVOLUTION_LEVEL
+      i += 1
     end
 
-    # Species with only one possible evolution
-    if evolutions.length == 1 && pokemon.level >= level
-      pokemon.species = evolutions[0][0]
-    # Species with only multiple possible evolutions (the evolution is defined randomly)
-    elsif evolutions.length > 1 && pokemon.level >= level
-      pokemon.species = evolutions[rand(0, evolutions.length)][0]
+    # Species that evolve by level up
+    if !other_evolving_method
+      if pokemon.check_evolution_on_level_up != nil
+        pokemon.species = pokemon.check_evolution_on_level_up
+      end
+
+    # For species with other evolving methods
+    else
+      # Checks if the pokemon is in it's midform and defines the level to evolve
+      if evolvedTimes == 0
+        for difficulty in LevelScalingSettings::DIFICULTIES do
+          if difficulty.id == selectedDifficulty
+            level = difficulty.first_evolution_level
+          end
+        end
+      else
+        for difficulty in LevelScalingSettings::DIFICULTIES do
+          if difficulty.id == selectedDifficulty
+            level = difficulty.secund_evolution_level
+          end
+        end
+      end
+
+      # Species with only one possible evolution
+      if evolutions.length == 1 && pokemon.level >= level
+        pokemon.species = evolutions[0][0]
+      # Species with only multiple possible evolutions (the evolution is defined randomly)
+      elsif evolutions.length > 1 && pokemon.level >= level
+        pokemon.species = evolutions[rand(0, evolutions.length - 1)][0]
+      end
     end
 
     evolvedTimes += 1
