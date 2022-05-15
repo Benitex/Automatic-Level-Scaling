@@ -1,5 +1,5 @@
 #===============================================================================
-# Advanced Pokemon Level Balancing
+# Automatic Level Scaling
 # By Benitex
 #===============================================================================
 
@@ -68,9 +68,18 @@ def setNewStage(pokemon)
   while evolvedTimes <= 2
     evolutions = GameData::Species.get(pokemon.species).get_evolutions(false)
 
-    if evolutions.length == 1 && pokemon.level >= LevelScalingSettings::OTHER_FIRST_EVOLUTION_LEVEL
+    # Checks if the pokemon is in it's midform and defines the level to evolve
+    if evolvedTimes > 0
+      level = LevelScalingSettings::OTHER_SECOND_EVOLUTION_LEVEL
+    else
+      level = LevelScalingSettings::OTHER_FIRST_EVOLUTION_LEVEL
+    end
+
+    # Species with only one possible evolution
+    if evolutions.length == 1 && pokemon.level >= level
       pokemon.species = evolutions[0][0]
-    elsif evolutions.length > 1 && pokemon.level >= LevelScalingSettings::OTHER_SECOND_EVOLUTION_LEVEL
+    # Species with only multiple possible evolutions (the evolution is defined randomly)
+    elsif evolutions.length > 1 && pokemon.level >= level
       pokemon.species = evolutions[rand(0, evolutions.length)][0]
     end
 

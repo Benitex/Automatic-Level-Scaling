@@ -1,2 +1,1 @@
-# Advanced-Pokemon-Level-Balancing
- 
+# Automatic Level Scaling

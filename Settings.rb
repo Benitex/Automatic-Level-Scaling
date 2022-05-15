@@ -1,5 +1,5 @@
 #===============================================================================
-# Advanced Pokemon Level Balancing Settings
+# Automatic Level Scaling Settings
 # By Benitex
 #===============================================================================
 
@@ -23,6 +23,6 @@ module LevelScalingSettings
   UPDATE_MOVES = true
 
   TRADE_EVOLUTION_LEVEL = 40
-  OTHER_FIRST_EVOLUTION_LEVEL = 15  # Evolution to the mid form by happiness, items, etc.
+  OTHER_FIRST_EVOLUTION_LEVEL = 20  # Evolution to the mid form by happiness, items, etc.
   OTHER_SECOND_EVOLUTION_LEVEL = 40 # Evolution to the last form by happiness, items, etc.
 end
