@@ -42,7 +42,7 @@ def setNewLevel(pokemon, selectedDifficulty)
   pokemon.level = new_level
 
   if LevelScalingSettings::AUTOMATIC_EVOLUTIONS
-    setNewStage(pokemon)  # Evolution part
+    setNewStage(pokemon, selectedDifficulty)  # Evolution part
   end
   pokemon.calc_stats
   if LevelScalingSettings::UPDATE_MOVES
@@ -50,16 +50,16 @@ def setNewLevel(pokemon, selectedDifficulty)
   end
 end
 
-def setNewStage(pokemon)
+def setNewStage(pokemon, selectedDifficulty)
   evolvedTimes = 0
   # Species that only evolve by level up
-  pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first evolution
+  pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
   while pokemon.check_evolution_on_level_up != nil
     pokemon.species = pokemon.check_evolution_on_level_up
     evolvedTimes += 1
   end
   # Species that only evolve by trade
-  while pokemon.check_evolution_on_trade(self) != nil && pokemon.level > LevelScalingSettings::TRADE_EVOLUTION_LEVEL
+  while pokemon.check_evolution_on_trade(self) != nil && pokemon.level > LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL
     pokemon.species = pokemon.check_evolution_on_trade(self)
     evolvedTimes += 1
   end
@@ -70,9 +70,19 @@ def setNewStage(pokemon)
 
     # Checks if the pokemon is in it's midform and defines the level to evolve
     if evolvedTimes > 0
-      level = LevelScalingSettings::OTHER_SECOND_EVOLUTION_LEVEL
+      for difficulty in LevelScalingSettings::DIFICULTIES do
+        if difficulty.id == selectedDifficulty
+          level = difficulty.secund_evolution_level
+        end
+      end
+      # level = LevelScalingSettings::OTHER_SECOND_EVOLUTION_LEVEL
     else
-      level = LevelScalingSettings::OTHER_FIRST_EVOLUTION_LEVEL
+      for difficulty in LevelScalingSettings::DIFICULTIES do
+        if difficulty.id == selectedDifficulty
+          level = difficulty.first_evolution_level
+        end
+      end
+      # level = LevelScalingSettings::OTHER_FIRST_EVOLUTION_LEVEL
     end
 
     # Species with only one possible evolution
@@ -91,10 +101,14 @@ class Difficulty
   attr_accessor :id
   attr_accessor :random_increase
   attr_accessor :fixed_increase
+  attr_accessor :first_evolution_level
+  attr_accessor :secund_evolution_level
 
-  def initialize(id, random_increase, fixed_increase)
+  def initialize(id, random_increase, fixed_increase, first_evolution_level = LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL, secund_evolution_level = LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL)
     @id = id
     @random_increase = random_increase
     @fixed_increase = fixed_increase
+    @first_evolution_level = first_evolution_level
+    @secund_evolution_level = secund_evolution_level
   end
 end
