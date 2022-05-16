@@ -21,13 +21,13 @@ Here's an event showing some of the options to change difficulty:
 
 ### Creating new difficulties
 
-There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id, random_increase, fixed_increase)`
+There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id, random_increase, fixed_increase, (optional) first_evolution_level, (optional) second_evolution_level)` in `Settings.rb`.
 
 * `id` is the value stored in `TRAINERVARIABLE` or `WILDVARIABLE`
 * `random_increase` is a random value that increases the pokemon level
 * `fixed_increase` is a pre-defined value that increases the pokemon level
-* `first_evolution_level` is the level required for pokemon that don't evolve by level to get to the mid form
-* `second_evolution_level` is the level required for pokemon that don't evolve by level to get to the final form
+* `first_evolution_level` is the level required for pokemon that don't evolve by level up to get to the mid form
+* `second_evolution_level` is the level required for pokemon that don't evolve by level up to get to the final form
 
 Note that these variables can also store negative values. Setting them to 0 would have the same effect of calling `pbBalancedLevel($Trainer.party)` and removing two from the avarage.
 
