@@ -12,7 +12,7 @@ Events.onWildPokemonCreate += proc { |_sender, e|
     pokemon.shiny = true
   end
 
-  if difficulty > 0
+  if difficulty != 0
     setNewLevel(pokemon, difficulty)
   end
 }
@@ -20,7 +20,7 @@ Events.onWildPokemonCreate += proc { |_sender, e|
 Events.onTrainerPartyLoad += proc { |_sender, trainer|
   if trainer   # An NPCTrainer object containing party/items/lose text, etc.
     difficulty = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
-    if difficulty > 0
+    if difficulty != 0
       for pokemon in trainer[0].party
         setNewLevel(pokemon, difficulty)
       end
@@ -34,7 +34,12 @@ def setNewLevel(pokemon, selectedDifficulty)
   # Difficulty modifiers
   for difficulty in LevelScalingSettings::DIFICULTIES do
     if difficulty.id == selectedDifficulty
-      new_level += rand(difficulty.random_increase) + difficulty.fixed_increase
+      new_level += difficulty.fixed_increase
+      if difficulty.random_increase < 0
+        new_level += rand(difficulty.random_increase..0)
+      elsif difficulty.random_increase > 0
+        new_level += rand(difficulty.random_increase)
+      end
     end
   end
 
@@ -51,10 +56,9 @@ def setNewLevel(pokemon, selectedDifficulty)
 end
 
 def setNewStage(pokemon, selectedDifficulty)
-  evolvedTimes = 0
   pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
 
-  while evolvedTimes < 2
+  2.times do |evolvedTimes|
     evolutions = GameData::Species.get(pokemon.species).get_evolutions(false)
 
     # Checks if the species only evolve by level up
@@ -98,8 +102,6 @@ def setNewStage(pokemon, selectedDifficulty)
         pokemon.species = evolutions[rand(0, evolutions.length - 1)][0]
       end
     end
-
-    evolvedTimes += 1
   end
 end
 
