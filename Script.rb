@@ -8,27 +8,27 @@ Events.onWildPokemonCreate += proc { |_sender, e|
   difficulty = $game_variables[LevelScalingSettings::WILD_VARIABLE] 
 
   # Make all wild Pokémon shiny while a certain Switch is ON (see Pokemon Essentials Settings script).
-  if $game_switches[Settings::SHINY_WILD_POKEMON_SWITCH]
-    pokemon.shiny = true
-  end
+  pokemon.shiny = true if $game_switches[Settings::SHINY_WILD_POKEMON_SWITCH]
 
-  if difficulty != 0
-    setNewLevel(pokemon, difficulty)
-  end
+  setNewLevel(pokemon, difficulty) if difficulty != 0
 }
 
 Events.onTrainerPartyLoad += proc { |_sender, trainer|
   if trainer   # An NPCTrainer object containing party/items/lose text, etc.
     difficulty = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
     if difficulty != 0
+      avarage_level = 0
+      trainer[0].party.each { |pokemon| avarage_level += pokemon.level }
+      avarage_level /= trainer[0].party.length
+
       for pokemon in trainer[0].party
-        setNewLevel(pokemon, difficulty)
+        setNewLevel(pokemon, difficulty, pokemon.level - avarage_level)
       end
     end
   end
 }
 
-def setNewLevel(pokemon, selectedDifficulty)
+def setNewLevel(pokemon, selectedDifficulty, difference_from_average)
   new_level = pbBalancedLevel($Trainer.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
 
   # Difficulty modifiers
@@ -43,6 +43,7 @@ def setNewLevel(pokemon, selectedDifficulty)
     end
   end
 
+  new_level += difference_from_average if LevelScalingSettings::PROPORTIONAL_SCALING
   new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
   pokemon.level = new_level
 
@@ -50,9 +51,7 @@ def setNewLevel(pokemon, selectedDifficulty)
     setNewStage(pokemon, selectedDifficulty)  # Evolution part
   end
   pokemon.calc_stats
-  if LevelScalingSettings::UPDATE_MOVES
-    pokemon.reset_moves    
-  end
+  pokemon.reset_moves if LevelScalingSettings::UPDATE_MOVES
 end
 
 def setNewStage(pokemon, selectedDifficulty)
