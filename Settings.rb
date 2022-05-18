@@ -11,6 +11,9 @@ module LevelScalingSettings
 
   AUTOMATIC_EVOLUTIONS = true
   UPDATE_MOVES = true
+  # Scales levels but takes original level differences into consideration
+  # Don't forget to set random_increase values to 0 when using this setting
+  PROPORTIONAL_SCALING = false
 
   # If evolution levels are not defined when creating a difficulty, these are the default values used
   DEFAULT_FIRST_EVOLUTION_LEVEL = 20
