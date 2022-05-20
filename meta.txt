@@ -1,8 +1,8 @@
 Name         = Automatic Level Scaling
-Version      = 1.0.0
+Version      = 1.2.0
+Essentials   = 20
 Website      = https://github.com/Benitex/Automatic-Level-Scaling
 Credits      = Benitex, Joltik, Umbreon
-
 #===============================================================================
 # Instalation
 #===============================================================================
@@ -43,4 +43,4 @@ Credits      = Benitex, Joltik, Umbreon
 #===============================================================================
 # The one script I was inspired by the most is Joltik's Advanced Pokemon Level Balancing + evolution, 
 # but the default Essentials random dungeon script was also important to make this script.
-#
+#===============================================================================

@@ -3,33 +3,32 @@
 # By Benitex
 #===============================================================================
 
-Events.onWildPokemonCreate += proc { |_sender, e|
-  pokemon = e[0]
-  difficulty = $game_variables[LevelScalingSettings::WILD_VARIABLE] 
+EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
+  proc { |pokemon|
+    difficulty = $game_variables[LevelScalingSettings::WILD_VARIABLE] 
+    setNewLevel(pokemon, difficulty) if difficulty != 0
+  }
+)
 
-  # Make all wild Pokémon shiny while a certain Switch is ON (see Pokemon Essentials Settings script).
-  pokemon.shiny = true if $game_switches[Settings::SHINY_WILD_POKEMON_SWITCH]
+EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
+  proc { |trainer|
+    if trainer   # An NPCTrainer object containing party/items/lose text, etc.
+      difficulty = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
+      if difficulty != 0
+        avarage_level = 0
+        trainer.party.each { |pokemon| avarage_level += pokemon.level }
+        avarage_level /= trainer.party.length
 
-  setNewLevel(pokemon, difficulty) if difficulty != 0
-}
-
-Events.onTrainerPartyLoad += proc { |_sender, trainer|
-  if trainer   # An NPCTrainer object containing party/items/lose text, etc.
-    difficulty = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
-    if difficulty != 0
-      avarage_level = 0
-      trainer[0].party.each { |pokemon| avarage_level += pokemon.level }
-      avarage_level /= trainer[0].party.length
-
-      for pokemon in trainer[0].party
-        setNewLevel(pokemon, difficulty, pokemon.level - avarage_level)
+        for pokemon in trainer.party
+          setNewLevel(pokemon, difficulty, pokemon.level - avarage_level)
+        end
       end
     end
-  end
-}
+  }
+)
 
 def setNewLevel(pokemon, selectedDifficulty, difference_from_average = 0)
-  new_level = pbBalancedLevel($Trainer.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
+  new_level = pbBalancedLevel($player.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
 
   # Difficulty modifiers
   for difficulty in LevelScalingSettings::DIFICULTIES do
