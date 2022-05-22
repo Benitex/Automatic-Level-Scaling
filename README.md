@@ -21,15 +21,21 @@ Here's an event showing some of the options to change difficulty:
 
 ### Creating new difficulties
 
-There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id, random_increase, fixed_increase, (optional) first_evolution_level, (optional) second_evolution_level)` in `Settings.rb`.
+There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:` in `Settings.rb`.
 
 * `id` is the value stored in `TRAINERVARIABLE` or `WILDVARIABLE`
 * `random_increase` is a random value that increases the pokemon level
 * `fixed_increase` is a pre-defined value that increases the pokemon level
+
+You can use the following function to change some other settings for a specific difficulty too.
+`DifficultySettings.new(update_moves:, first_evolution_level:, second_evolution_level:)`
+All arguments are optional. You can use this for a specific battle, for example.
+
+* `update_moves` can be set to false if you don't want moves to be updated after setting the new level and stage
 * `first_evolution_level` is the level required for pokemon that don't evolve by level up to get to the mid form
 * `second_evolution_level` is the level required for pokemon that don't evolve by level up to get to the final form
 
-Note that these variables can also store negative values. Setting them to 0 would have the same effect of calling `pbBalancedLevel($Trainer.party)` and removing two from the avarage.
+Note that these variables can also store negative values. Setting them to 0 would have the same effect of calling `pbBalancedLevel($player.party)` and removing two from the avarage.
 
 ## Detailed credits
 

@@ -32,12 +32,18 @@ Credits      = Benitex, Joltik, Umbreon
 #   "id" is the value stored in TRAINERVARIABLE or WILDVARIABLE
 #   "random_increase" is a random value that increases the pokemon level
 #   "fixed_increase" is a pre-defined value that increases the pokemon level
-#   "first_evolution_level" is the level required for pokemon that don't evolve by level to get to the mid form
-#   "second_evolution_level" is the level required for pokemon that don't evolve by level to get to the final form
 # Note that these variables can also store negative values. 
-# Setting them to 0 would have the same effect of calling "pbBalancedLevel($Trainer.party)" 
+# Setting them to 0 would have the same effect of calling "pbBalancedLevel($player.party)" 
 # and removing two from the avarage.
 # 
+# Adding a custom difficulty settings:
+# 
+# You can use the following function to change some other settings for a specific difficulty too.
+# All arguments are optional. You can use this for a specific battle, for example.
+# DifficultySettings.new(update_moves:, first_evolution_level:, second_evolution_level:)
+#   "update_moves" can be set to false if you don't want moves to be updated after setting the new level and stage
+#   "first_evolution_level" is the level required for pokemon that don't evolve by level to get to the mid form
+#   "second_evolution_level" is the level required for pokemon that don't evolve by level to get to the final form
 #===============================================================================
 # Detailed credits
 #===============================================================================

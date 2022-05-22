@@ -32,7 +32,7 @@ EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
 )
 
 class AutomaticLevelScaling
-  @@selectedDifficulty = 0
+  @@selectedDifficulty
 
   def self.setDifficulty(selectedDifficultyID)
     for difficulty in LevelScalingSettings::DIFICULTIES do
@@ -60,7 +60,7 @@ class AutomaticLevelScaling
     AutomaticLevelScaling.setNewStage(pokemon) if LevelScalingSettings::AUTOMATIC_EVOLUTIONS
 
     pokemon.calc_stats
-    pokemon.reset_moves if LevelScalingSettings::UPDATE_MOVES
+    pokemon.reset_moves if @@selectedDifficulty.settings.update_moves
   end
 
   def self.setNewStage(pokemon)
@@ -71,13 +71,11 @@ class AutomaticLevelScaling
 
       # Checks if the species only evolve by level up
       other_evolving_method = false
-      i = 0
-      while i < evolutions.length
+      evolutions.length.times { |i|
         if evolutions[i][1] != :Level
           other_evolving_method = true
         end
-        i += 1
-      end
+      }
 
       if !other_evolving_method   # Species that evolve by level up
         if pokemon.check_evolution_on_level_up != nil
@@ -86,33 +84,42 @@ class AutomaticLevelScaling
 
       else  # For species with other evolving methods
         # Checks if the pokemon is in it's midform and defines the level to evolve
-        level = evolvedTimes == 0 ? @@selectedDifficulty.first_evolution_level : @@selectedDifficulty.secund_evolution_level
+        level = evolvedTimes == 0 ? @@selectedDifficulty.settings.first_evolution_level : @@selectedDifficulty.settings.second_evolution_level
 
         if pokemon.level >= level
           if evolutions.length == 1     # Species with only one possible evolution
             pokemon.species = evolutions[0][0]
-          elsif evolutions.length > 1   # Species with multiple possible evolutions (the evolution is defined randomly)
+          elsif evolutions.length > 1   # Species with multiple possible evolutions (the evolution is randomly defined)
             pokemon.species = evolutions[rand(0, evolutions.length - 1)][0]
           end
         end
       end
     end
   end
-
 end
 
 class Difficulty
   attr_accessor :id
-  attr_accessor :random_increase
   attr_accessor :fixed_increase
-  attr_accessor :first_evolution_level
-  attr_accessor :secund_evolution_level
+  attr_accessor :random_increase
+  attr_accessor :settings
 
-  def initialize(id, random_increase, fixed_increase, first_evolution_level = LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL, secund_evolution_level = LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL)
+  def initialize(id:, fixed_increase: 0, random_increase: 0, settings: DifficultySettings.new)
     @id = id
     @random_increase = random_increase
     @fixed_increase = fixed_increase
+    @settings = settings
+  end
+end
+
+class DifficultySettings
+  attr_accessor :first_evolution_level
+  attr_accessor :second_evolution_level
+  attr_accessor :update_moves
+
+  def initialize(update_moves: true, first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL, second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL)
+    @update_moves = update_moves
     @first_evolution_level = first_evolution_level
-    @secund_evolution_level = secund_evolution_level
+    @second_evolution_level = second_evolution_level
   end
 end
