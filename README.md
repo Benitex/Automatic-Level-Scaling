@@ -27,15 +27,19 @@ There are three pre-defined difficulties, but you can add your own new ones by u
 * `random_increase` is a random value that increases the pokemon level
 * `fixed_increase` is a pre-defined value that increases the pokemon level
 
-You can use the following function to change some other settings for a specific difficulty too.
-`DifficultySettings.new(update_moves:, first_evolution_level:, second_evolution_level:)`
-All arguments are optional. You can use this for a specific battle, for example.
+Note that these variables can also store negative values. Setting them to 0 would have the same effect of calling `pbBalancedLevel($player.party)` and removing two from the avarage.
+
+### Changing settings for a specific battle
+
+You can use the following function to change some settings before a specific battle. Don't forget to change them back to the original settings after the battle. All arguments are optional and can be positioned in any order.
+
+`AutomaticLevelScaling.setSettings(update_moves:, automatic_evolutions:, :proportional_scaling, first_evolution_level:, second_evolution_level:)`
 
 * `update_moves` can be set to false if you don't want moves to be updated after setting the new level and stage
+* `proportional_scaling` can be set to true if you want to scale levels but take original level differences into consideration
+* `automatic_evolutions` can be set to false if you don't pokemon to automatically evolve if possible
 * `first_evolution_level` is the level required for pokemon that don't evolve by level up to get to the mid form
 * `second_evolution_level` is the level required for pokemon that don't evolve by level up to get to the final form
-
-Note that these variables can also store negative values. Setting them to 0 would have the same effect of calling `pbBalancedLevel($player.party)` and removing two from the avarage.
 
 ## Detailed credits
 
