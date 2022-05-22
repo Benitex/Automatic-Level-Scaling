@@ -1,6 +1,6 @@
 # Automatic Level Scaling
 
-This Pokemon Essentials v19 plugin will change wild and trainer pokemon levels according to the party pokemon levels. These pokemon are also going to evolve automatically depending on their level. You can choose between 3 initial difficulty options, but you can also easily create your difficulty options. All these features can also be disabled if you wish.
+This Pokemon Essentials v20 and v19 plugin will change wild and trainer pokemon levels according to the party pokemon levels. These pokemon are also going to evolve automatically depending on their level. You can choose between 3 initial difficulty options, but you can also easily create your difficulty options. All these features can also be disabled if you wish.
 
 ## Installation
 
@@ -21,11 +21,17 @@ Here's an event showing some of the options to change difficulty:
 
 ### Creating new difficulties
 
-There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id, random_increase, fixed_increase, (optional) first_evolution_level, (optional) second_evolution_level)` in `Settings.rb`.
+There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:` in `Settings.rb`.
 
 * `id` is the value stored in `TRAINERVARIABLE` or `WILDVARIABLE`
 * `random_increase` is a random value that increases the pokemon level
 * `fixed_increase` is a pre-defined value that increases the pokemon level
+
+You can use the following function to change some other settings for a specific difficulty too.
+`DifficultySettings.new(update_moves:, first_evolution_level:, second_evolution_level:)`
+All arguments are optional. You can use this for a specific battle, for example.
+
+* `update_moves` can be set to false if you don't want moves to be updated after setting the new level and stage
 * `first_evolution_level` is the level required for pokemon that don't evolve by level up to get to the mid form
 * `second_evolution_level` is the level required for pokemon that don't evolve by level up to get to the final form
 
