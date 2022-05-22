@@ -30,6 +30,13 @@ Events.onTrainerPartyLoad += proc { |_sender, trainer|
 
 class AutomaticLevelScaling
   @@selectedDifficulty
+  @@settings = {
+    automatic_evolutions: true,
+    first_evolution_level: 20,
+    second_evolution_level: 40,
+    update_moves: true,
+    proportional_scaling: false
+  }
 
   def self.setDifficulty(selectedDifficultyID)
     for difficulty in LevelScalingSettings::DIFICULTIES do
@@ -48,16 +55,16 @@ class AutomaticLevelScaling
       new_level += rand(@@selectedDifficulty.random_increase)
     end
     # Proportional scaling
-    new_level += difference_from_average if LevelScalingSettings::PROPORTIONAL_SCALING
+    new_level += difference_from_average if LevelScalingSettings::PROPORTIONAL_SCALING || @@settings[:proportional_scaling]
 
     new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
     pokemon.level = new_level
 
     # Evolution part
-    AutomaticLevelScaling.setNewStage(pokemon) if LevelScalingSettings::AUTOMATIC_EVOLUTIONS
+    AutomaticLevelScaling.setNewStage(pokemon) if LevelScalingSettings::AUTOMATIC_EVOLUTIONS || @@settings[:automatic_evolutions]
 
     pokemon.calc_stats
-    pokemon.reset_moves if @@selectedDifficulty.settings.update_moves
+    pokemon.reset_moves if @@settings[:update_moves]
   end
 
   def self.setNewStage(pokemon)
@@ -81,7 +88,7 @@ class AutomaticLevelScaling
 
       else  # For species with other evolving methods
         # Checks if the pokemon is in it's midform and defines the level to evolve
-        level = evolvedTimes == 0 ? @@selectedDifficulty.settings.first_evolution_level : @@selectedDifficulty.settings.second_evolution_level
+        level = evolvedTimes == 0 ? @@settings[:second_evolution_level] : @@settings[:second_evolution_level]
 
         if pokemon.level >= level
           if evolutions.length == 1     # Species with only one possible evolution
@@ -93,30 +100,24 @@ class AutomaticLevelScaling
       end
     end
   end
+
+  def self.setSettings(update_moves: true, automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS, proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING, first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL, second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL)
+    @@settings[:update_moves] = update_moves
+    @@settings[:first_evolution_level] = first_evolution_level
+    @@settings[:second_evolution_level] = second_evolution_level
+    @@settings[:proportional_scaling] = proportional_scaling
+    @@settings[:automatic_evolutions] = automatic_evolutions
+  end
 end
 
 class Difficulty
   attr_accessor :id
   attr_accessor :fixed_increase
   attr_accessor :random_increase
-  attr_accessor :settings
 
-  def initialize(id:, fixed_increase: 0, random_increase: 0, settings: DifficultySettings.new)
+  def initialize(id:, fixed_increase: 0, random_increase: 0)
     @id = id
     @random_increase = random_increase
     @fixed_increase = fixed_increase
-    @settings = settings
-  end
-end
-
-class DifficultySettings
-  attr_accessor :first_evolution_level
-  attr_accessor :second_evolution_level
-  attr_accessor :update_moves
-
-  def initialize(update_moves: true, first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL, second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL)
-    @update_moves = update_moves
-    @first_evolution_level = first_evolution_level
-    @second_evolution_level = second_evolution_level
   end
 end

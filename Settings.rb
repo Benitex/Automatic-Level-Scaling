@@ -29,14 +29,6 @@ module LevelScalingSettings
     Difficulty.new(id: 3, fixed_increase: 3, random_increase: 3),   # Hard
     Difficulty.new(id: 4),                                          # Avarage
     Difficulty.new(id: 5, fixed_increase: -2, random_increase: 5),  # Standard Essentials
-
-    # You can use the following function to change some other settings for a specific difficulty too.
-    # All arguments are optional. You can use this for a specific battle, for example.
-    # DifficultySettings.new(update_moves:, first_evolution_level:, second_evolution_level:)
-    #   "update_moves" can be set to false if you don't want moves to be updated after setting the new level and stage
-    #   "first_evolution_level" is the level required for pokemon that don't evolve by level to get to the mid form
-    #   "second_evolution_level" is the level required for pokemon that don't evolve by level to get to the final form
-    Difficulty.new(id:6, settings: DifficultySettings.new( update_moves: false, first_evolution_level: 10, second_evolution_level: 10 ))
   ]
 
 end
