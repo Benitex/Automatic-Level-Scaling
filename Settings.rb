@@ -36,6 +36,7 @@ module LevelScalingSettings
     #   "update_moves" can be set to false if you don't want moves to be updated after setting the new level and stage
     #   "first_evolution_level" is the level required for pokemon that don't evolve by level to get to the mid form
     #   "second_evolution_level" is the level required for pokemon that don't evolve by level to get to the final form
+    # "automatic_evolutions" and "proportional_scaling" are also possible to edit
     Difficulty.new(id:6, settings: DifficultySettings.new( update_moves: false, first_evolution_level: 10, second_evolution_level: 10 ))
   ]
 
