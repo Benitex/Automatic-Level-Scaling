@@ -4,7 +4,7 @@
 #===============================================================================
 
 module LevelScalingSettings
-  # These two above are the variable that controls battle's difficulty
+  # These two below are the variables that control difficulty
   # (You can set both of them to be the same)
   TRAINER_VARIABLE = 99
   WILD_VARIABLE = 100
