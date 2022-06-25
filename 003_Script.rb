@@ -3,6 +3,7 @@
 # By Benitex
 #===============================================================================
 
+# Activates script when a wild pokemon is created
 EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
   proc { |pokemon|
     id = $game_variables[LevelScalingSettings::WILD_VARIABLE]
@@ -13,6 +14,7 @@ EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
   }
 )
 
+# Activates script when a trainer pokemon is created
 EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
   proc { |trainer|
     id = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
@@ -109,4 +111,5 @@ class AutomaticLevelScaling
       end
     end
   end
+
 end
