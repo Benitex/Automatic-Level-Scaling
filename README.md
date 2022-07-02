@@ -21,7 +21,7 @@ Here's an event showing some of the options to change difficulty:
 
 ### Creating new difficulties
 
-There are three pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:` in `Settings.rb`.
+There are some pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:` in `Settings.rb`.
 
 * `id` is the value stored in `TRAINERVARIABLE` or `WILDVARIABLE`
 * `random_increase` is a random value that increases the pokemon level
@@ -36,6 +36,8 @@ You can use the following function to change some settings before a specific bat
 `AutomaticLevelScaling.setSettings(update_moves:, automatic_evolutions:, :proportional_scaling, first_evolution_level:, second_evolution_level:)`
 
 * `update_moves` can be set to false if you don't want moves to be updated after setting the new level and stage
+* `only_scale_if_higher` can be set to true if you want to use the original level when a player's pokemon level is lower than the original level
+* `only_scale_if_lower` can be set to true if you want to use the original level when a player's pokemon level is higher than the original level
 * `proportional_scaling` can be set to true if you want to scale levels but take original level differences into consideration
 * `automatic_evolutions` can be set to false if you don't pokemon to automatically evolve if possible
 * `first_evolution_level` is the level required for pokemon that don't evolve by level up to get to the mid form
