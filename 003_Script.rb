@@ -3,34 +3,6 @@
 # By Benitex
 #===============================================================================
 
-# Activates script when a wild pokemon is created
-EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
-  proc { |pokemon|
-    id = $game_variables[LevelScalingSettings::WILD_VARIABLE]
-    if id != 0
-      AutomaticLevelScaling.setDifficulty(id)
-      AutomaticLevelScaling.setNewLevel(pokemon)
-    end
-  }
-)
-
-# Activates script when a trainer pokemon is created
-EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
-  proc { |trainer|
-    id = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
-    if trainer && id != 0
-      AutomaticLevelScaling.setDifficulty(id)
-      avarage_level = 0
-      trainer.party.each { |pokemon| avarage_level += pokemon.level }
-      avarage_level /= trainer.party.length
-
-      for pokemon in trainer.party
-        AutomaticLevelScaling.setNewLevel(pokemon, pokemon.level - avarage_level)
-      end
-    end
-  }
-)
-
 class AutomaticLevelScaling
   @@selectedDifficulty = Difficulty.new(id: 0)
   @@settings = {
