@@ -3,29 +3,6 @@
 # By Benitex
 #===============================================================================
 
-Events.onWildPokemonCreate += proc { |_sender, e|
-  pokemon = e[0]
-  id = $game_variables[LevelScalingSettings::WILD_VARIABLE]
-  if id != 0
-    AutomaticLevelScaling.setDifficulty(id)
-    AutomaticLevelScaling.setNewLevel(pokemon)
-  end
-}
-
-Events.onTrainerPartyLoad += proc { |_sender, trainer|
-  id = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
-  if trainer && id != 0
-    AutomaticLevelScaling.setDifficulty(id)
-    avarage_level = 0
-    trainer[0].party.each { |pokemon| avarage_level += pokemon.level }
-    avarage_level /= trainer[0].party.length
-
-    for pokemon in trainer[0].party
-      AutomaticLevelScaling.setNewLevel(pokemon, pokemon.level - avarage_level)
-    end
-  end
-}
-
 class AutomaticLevelScaling
   @@selectedDifficulty = Difficulty.new(id: 0)
   @@settings = {
