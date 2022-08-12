@@ -66,7 +66,6 @@ class AutomaticLevelScaling
     form = pokemon.form   # regional form
     pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
     multiplePossibleForms = MultipleForms.hasFunction?(pokemon, "getForm") || MultipleForms.hasFunction?(pokemon, "getFormOnEggCreation")
-    pokemon.setForm(form) if multiplePossibleForms
 
     2.times do |evolvedTimes|
       evolutions = GameData::Species.get(pokemon.species).get_evolutions(false)
@@ -89,12 +88,30 @@ class AutomaticLevelScaling
         level = evolvedTimes == 0 ? @@settings[:second_evolution_level] : @@settings[:second_evolution_level]
 
         if pokemon.level >= level
-          if evolutions.length == 1                                 # Species with only one possible evolution
+          if evolutions.length == 1         # Species with only one possible evolution
             pokemon.species = evolutions[0][0]
+            pokemon.setForm(form) if multiplePossibleForms
+
           elsif evolutions.length > 1
-            if multiplePossibleForms && form < evolutions.length    # regional forms
-              pokemon.species = evolutions[form][0]
-            else                                                    # Species with multiple possible evolutions (the evolution is randomly defined)
+            if multiplePossibleForms
+              if form > evolutions.length   # regional form
+                pokemon.species = evolutions[0][0]
+                pokemon.setForm(form)
+              else                          # regional evolution
+                if !pokemon.isSpecies?(:MEOWTH)
+                  pokemon.species = evolutions[form][0]
+
+                else  # Meowth has two possible evolutions and a regional form depending on its origin region
+                  if form == 0 || form == 1
+                    pokemon.species = evolutions[0][0]
+                    pokemon.setForm(form)
+                  else
+                    pokemon.species = evolutions[1][0]
+                  end
+                end
+              end
+
+            else                            # Species with multiple possible evolutions
               pokemon.species = evolutions[rand(0, evolutions.length - 1)][0]
             end
           end
