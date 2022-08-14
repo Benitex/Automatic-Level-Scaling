@@ -34,4 +34,12 @@ module LevelScalingSettings
     Difficulty.new(id: 5, fixed_increase: -2, random_increase: 5),  # Standard Essentials
   ]
 
+  # You can insert the first stage of a custom regional form here
+  # Pokemon not included in this array will have their evolution selected randomly among all their possible forms
+  POKEMON_WITH_REGIONAL_FORMS = [
+    :RATTATA, :SANDSHREW, :VULPIX, :DIGLETT, :MEOWTH, :GEODUDE,
+    :GRIMER, :PONYTA, :FARFETCHD, :CORSOLA, :ZIGZAGOON,
+    :DARUMAKA, :YAMASK, :STUNFISK, :SLOWPOKE, :ARTICUNO, :ZAPDOS,
+    :MOLTRES, :PIKACHU, :EXEGGCUTE, :CUBONE, :KOFFING, :MIMEJR
+  ]
 end

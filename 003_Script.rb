@@ -65,7 +65,9 @@ class AutomaticLevelScaling
   def self.setNewStage(pokemon)
     form = pokemon.form   # regional form
     pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
-    multiplePossibleForms = MultipleForms.hasFunction?(pokemon, "getForm") || MultipleForms.hasFunction?(pokemon, "getFormOnEggCreation")
+    for species in LevelScalingSettings::POKEMON_WITH_REGIONAL_FORMS do
+      multiplePossibleForms = true if pokemon.isSpecies?(species)
+    end
 
     2.times do |evolvedTimes|
       evolutions = GameData::Species.get(pokemon.species).get_evolutions(false)
