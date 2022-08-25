@@ -98,20 +98,20 @@ class AutomaticLevelScaling
 
           elsif evolutions.length > 1
             if regionalForm
-              if form >= evolutions.length  # regional form
-                pokemon.species = evolutions[0][0]
-                pokemon.setForm(form)
-              else                          # regional evolution
-                if !pokemon.isSpecies?(:MEOWTH)
+              if !pokemon.isSpecies?(:MEOWTH)
+                if form >= evolutions.length  # regional form
+                  pokemon.species = evolutions[0][0]
+                  pokemon.setForm(form)
+                else                          # regional evolution
                   pokemon.species = evolutions[form][0]
+                end
 
-                else  # Meowth has two possible evolutions and a regional form depending on its origin region
-                  if form == 0 || form == 1
-                    pokemon.species = evolutions[0][0]
-                    pokemon.setForm(form)
-                  else
-                    pokemon.species = evolutions[1][0]
-                  end
+              else  # Meowth has two possible evolutions and a regional form depending on its origin region
+                if form == 0 || form == 1
+                  pokemon.species = evolutions[0][0]
+                  pokemon.setForm(form)
+                else
+                  pokemon.species = evolutions[1][0]
                 end
               end
 
