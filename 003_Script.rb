@@ -22,27 +22,31 @@ class AutomaticLevelScaling
     end
   end
 
+  def self.getScaledLevel
+    level = pbBalancedLevel($player.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
+
+    # Difficulty modifiers
+    level += @@selectedDifficulty.fixed_increase
+    if @@selectedDifficulty.random_increase < 0
+      level += rand(@@selectedDifficulty.random_increase..0)
+    elsif @@selectedDifficulty.random_increase > 0
+      level += rand(@@selectedDifficulty.random_increase)
+    end
+
+    level = level.clamp(1, GameData::GrowthRate.max_level)
+
+    return level
+  end
+
   def self.setNewLevel(pokemon, difference_from_average = 0)
-    new_level = pbBalancedLevel($player.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
-    
     # Checks for only_scale_if_higher and only_scale_if_lower
     higher_level_block = @@settings[:only_scale_if_higher] && pokemon.level > pbBalancedLevel($player.party)
     lower_level_block = @@settings[:only_scale_if_lower] && pokemon.level < pbBalancedLevel($player.party)
     if !higher_level_block && !lower_level_block
-
-      # Difficulty modifiers
-      new_level += @@selectedDifficulty.fixed_increase
-      if @@selectedDifficulty.random_increase < 0
-        new_level += rand(@@selectedDifficulty.random_increase..0)
-      elsif @@selectedDifficulty.random_increase > 0
-        new_level += rand(@@selectedDifficulty.random_increase)
-      end
+      pokemon.level = AutomaticLevelScaling.getScaledLevel
 
       # Proportional scaling
-      new_level += difference_from_average if @@settings[:proportional_scaling]
-
-      new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
-      pokemon.level = new_level
+      pokemon.level += difference_from_average if @@settings[:proportional_scaling]
 
       # Evolution part
       AutomaticLevelScaling.setNewStage(pokemon) if @@settings[:automatic_evolutions]
