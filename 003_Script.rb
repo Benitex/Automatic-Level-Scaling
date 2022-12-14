@@ -46,7 +46,10 @@ class AutomaticLevelScaling
       pokemon.level = AutomaticLevelScaling.getScaledLevel
 
       # Proportional scaling
-      pokemon.level += difference_from_average if @@settings[:proportional_scaling]
+      if @@settings[:proportional_scaling]
+        pokemon.level += difference_from_average
+        pokemon.level = pokemon.level.clamp(1, GameData::GrowthRate.max_level)
+      end
 
       # Evolution part
       AutomaticLevelScaling.setNewStage(pokemon) if @@settings[:automatic_evolutions]
