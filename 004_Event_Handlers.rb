@@ -6,7 +6,7 @@
 # Activates script when a wild pokemon is created
 EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
   proc { |pokemon|
-    id = $game_variables[LevelScalingSettings::WILD_VARIABLE]
+    id = pbGet(LevelScalingSettings::WILD_VARIABLE)
     if id != 0
       AutomaticLevelScaling.setDifficulty(id)
       AutomaticLevelScaling.setNewLevel(pokemon)
@@ -17,7 +17,7 @@ EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
 # Activates script when a trainer pokemon is created
 EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
   proc { |trainer|
-    id = $game_variables[LevelScalingSettings::TRAINER_VARIABLE]
+    id = pbGet(LevelScalingSettings::TRAINER_VARIABLE)
     if trainer && id != 0
       AutomaticLevelScaling.setDifficulty(id)
       avarage_level = 0

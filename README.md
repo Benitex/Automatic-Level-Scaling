@@ -40,13 +40,14 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 
 `AutomaticLevelScaling.setSettings` does not automatically revert changes after the next battle and they will be permanent until the game is closed or new changes are made. You can use the `temporary` parameter to revert the changes after the battle. If you don't use it, don't forget to change them back to the original settings after the battle or series of battles. All arguments are optional and can be positioned in any order, use a value of the type indicated after the parameter name.
 
-`AutomaticLevelScaling.setSettings(temporary: boolean, update_moves: boolean, automatic_evolutions: boolean, proportional_scaling: boolean, first_evolution_level: Integer, second_evolution_level: Integer, only_scale_if_higher: boolean, only_scale_if_lower: boolean)`
+`AutomaticLevelScaling.setSettings(temporary: boolean, update_moves: boolean, automatic_evolutions: boolean, include_previous_stages: boolean, proportional_scaling: boolean, first_evolution_level: Integer, second_evolution_level: Integer, only_scale_if_higher: boolean, only_scale_if_lower: boolean)`
 
 | Name | Description |
 | ---- | ----------- |
 | updateMoves | Set to false if you want to use the pre-moves defined in the PBS. |
 | proportionalScaling | When true, Takes original level differences from the PBS into consideration when scaling levels. |
 | automaticEvolutions | Set to false if you don't want pokemon automatically evolving. |
+| includePreviousStages | When true, returns pokemon to their previous evolution stages if they did not reach their evolution level. |
 | firstEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their mid-form. |
 | secondEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their final form. |
 | onlyScaleIfHigher | When true, the script will only scale levels if the player is over-leveled. |
