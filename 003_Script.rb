@@ -43,7 +43,7 @@ class AutomaticLevelScaling
     # Checks for only_scale_if_higher and only_scale_if_lower
     higher_level_block = @@settings[:only_scale_if_higher] && pokemon.level > pbBalancedLevel($player.party)
     lower_level_block = @@settings[:only_scale_if_lower] && pokemon.level < pbBalancedLevel($player.party)
-    if !higher_level_block && !lower_level_block
+    unless higher_level_block || lower_level_block
       pokemon.level = AutomaticLevelScaling.getScaledLevel
 
       # Proportional scaling
@@ -104,10 +104,9 @@ class AutomaticLevelScaling
         end
       }
 
-      if !other_evolving_method && !regionalForm   # Species that evolve by level up
+      unless other_evolving_method || regionalForm  # Species that evolve by level up
         if pokemon.check_evolution_on_level_up != nil
           pokemon.species = pokemon.check_evolution_on_level_up
-          pokemon.setForm(form) if regionalForm
         end
 
       else  # For species with other evolving methods
