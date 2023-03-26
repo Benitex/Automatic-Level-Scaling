@@ -26,7 +26,7 @@ Whenever you find a field where you should insert a pokemon level (except for PB
 
 ### Creating new difficulties
 
-There are some pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:` in `Settings.rb`.
+There are some pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:)` in `Settings.rb`.
 
 * `id` is the value that you use to select the difficulty in `TRAINER_VARIABLE` or `WILD_VARIABLE`
 * `fixed_increase` is a pre-defined value that increases the pokemon level (optional)
@@ -44,7 +44,7 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 
 | Name | Description |
 | ---- | ----------- |
-| updateMoves | Set to false if you want to use the pre-moves defined in the PBS. |
+| updateMoves | Set to false if you want to use the pre-defined moves in the PBS. |
 | proportionalScaling | When true, Takes original level differences from the PBS into consideration when scaling levels. |
 | automaticEvolutions | Set to false if you don't want pokemon automatically evolving. |
 | includePreviousStages | When true, returns pokemon to their previous evolution stages if they did not reach their evolution level. |
