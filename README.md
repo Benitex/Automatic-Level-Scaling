@@ -1,6 +1,6 @@
 # Automatic Level Scaling
 
-This Pokemon Essentials v20 and v19 plugin will change wild and trainer pokemon levels according to the party pokemon levels. These pokemon are also going to evolve automatically depending on their level. You can choose between 5 initial difficulty options, but you can also easily create your difficulty options. All these features can also be disabled if you wish.
+This Pokemon Essentials v21, v20 and v19 plugin will change wild and trainer pokemon levels according to the party pokemon levels. These pokemon are also going to evolve automatically depending on their level. You can choose between 5 initial difficulty options, but you can also easily create your difficulty options. All these features can also be disabled if you wish.
 
 ## Installation
 
