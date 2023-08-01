@@ -51,7 +51,7 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 | firstEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their mid-form. |
 | secondEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their final form. |
 | onlyScaleIfHigher | When true, the script will only scale levels if the player is over-leveled. |
-| onlyScaleIfLower | When true, The script will only scale levels if the player is under-leveled. |
+| onlyScaleIfLower | When true, the script will only scale levels if the player is under-leveled. |
 | temporary | Only in `setSettings`. Restores all settings to their default values after the next battle. |
 
 **Warning**: `setTemporarySetting` uses camelCase for parameters and `setSettings` uses underscore_case.
