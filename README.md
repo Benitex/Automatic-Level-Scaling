@@ -26,11 +26,10 @@ Whenever you find a field where you should insert a pokemon level (except for PB
 
 ### Creating new difficulties
 
-There are some pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(id:, fixed_increase:, random_increase:)` in `Settings.rb`.
+There are some pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(fixed_increase:, random_increase:)` in the DIFFICULTIES Hash in `Settings.rb`.
 
-* `id` is the value that you use to select the difficulty in `TRAINER_VARIABLE` or `WILD_VARIABLE`
-* `fixed_increase` is a pre-defined value that increases the pokemon level (optional)
-* `random_increase` is a randomly selected value between 0 and the value provided (optional)
+* `fixed_increase` is a pre-defined value that increases the pokemon level
+* `random_increase` is a randomly selected value between 0 and the value provided
 
 Note that these variables can also store negative values. Setting them to 0 would have the same effect as calling `pbBalancedLevel($player.party)` and removing two from the average.
 
