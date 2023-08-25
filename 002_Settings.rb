@@ -24,18 +24,18 @@ module LevelScalingSettings
   ONLY_SCALE_IF_HIGHER = false   # The script will only scale levels if the player is overleveled
   ONLY_SCALE_IF_LOWER = false    # The script will only scale levels if the player is underleveled
 
-  # You can add your own difficulties here, using the function "Difficulty.new(id, fixed_increase, random_increase)"
-  #   "id" is the value stored in TRAINER_VARIABLE or WILD_VARIABLE, defines the active difficulty
-  #   "fixed_increase" is a pre defined value that increases the level (optional)
-  #   "random_increase" is a randomly selected value between 0 and the value provided (optional)
-  # (These variables can also store negative values)
-  DIFICULTIES = [
-    Difficulty.new(id: 1, fixed_increase: -2, random_increase: 2),  # Easy
-    Difficulty.new(id: 2, random_increase: 2),                      # Medium
-    Difficulty.new(id: 3, fixed_increase: 3, random_increase: 3),   # Hard
-    Difficulty.new(id: 4),                                          # Avarage
-    Difficulty.new(id: 5, fixed_increase: -2, random_increase: 5),  # Standard Essentials
-  ]
+  # You can add your own difficulties in the following Hash, using the function "Difficulty.new(fixed_increase, random_increase)"
+  #   "fixed_increase" is a pre defined value that increases the level
+  #   "random_increase" is a randomly selected value between 0 and the value provided
+  # Each difficulty has an index in the Hash, which represents the difficulty
+  # You can change the active difficulty by updating TRAINER_VARIABLE or WILD_VARIABLE according to these indexes
+  DIFFICULTIES = {
+    1 => Difficulty.new(fixed_increase: -2, random_increase: 2),  # Easy
+    2 => Difficulty.new(random_increase: 2),                      # Medium
+    3 => Difficulty.new(fixed_increase: 3, random_increase: 3),   # Hard
+    4 => Difficulty.new,                                          # Avarage
+    5 => Difficulty.new(fixed_increase: -2, random_increase: 5),  # Standard Essentials
+  }
 
   # You can insert the first stage of a custom regional form here
   # Pokemon not included in this array will have their evolution selected randomly among all their possible forms

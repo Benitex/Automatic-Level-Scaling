@@ -4,7 +4,7 @@
 #===============================================================================
 
 class AutomaticLevelScaling
-  @@selectedDifficulty = Difficulty.new(id: 0)
+  @@selectedDifficulty = Difficulty.new
   @@settings = {
     temporary: false,
     automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
@@ -18,8 +18,10 @@ class AutomaticLevelScaling
   }
 
   def self.setDifficulty(id)
-    for difficulty in LevelScalingSettings::DIFICULTIES do
-      @@selectedDifficulty = difficulty if difficulty.id == id
+    if LevelScalingSettings::DIFFICULTIES[id] == nil
+      raise _INTL("No difficulty with id \"{1}\" was provided in the DIFFICULTIES Hash of Settings.", id)
+    else
+      @@selectedDifficulty = LevelScalingSettings::DIFFICULTIES[id]
     end
   end
 
@@ -115,7 +117,7 @@ class AutomaticLevelScaling
 
       else  # For species with other evolving methods
         # Checks if the pokemon is in it's midform and defines the level to evolve
-        level = stage == 0 ? @@settings[:first_evolution_level] : @@settings[:second_evolution_level]
+        level = @@settings[stage == 0 ? :first_evolution_level : :second_evolution_level]
 
         if pokemon.level >= level
           if evolutions.length == 1         # Species with only one possible evolution
@@ -184,7 +186,17 @@ class AutomaticLevelScaling
     end
   end
 
-  def self.setSettings(temporary: false, update_moves: true, automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS, include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES, proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING, first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL, second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL, only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER, only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER)
+  def self.setSettings(
+    temporary: false,
+    update_moves: true,
+    automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
+    include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES,
+    proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING,
+    first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
+    second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
+    only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER,
+    only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER
+  )
     @@settings[:temporary] = temporary
     @@settings[:update_moves] = update_moves
     @@settings[:first_evolution_level] = first_evolution_level
