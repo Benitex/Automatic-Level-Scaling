@@ -16,6 +16,9 @@ class AutomaticLevelScaling
     only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
     update_moves: true
   }
+  def self.settings
+    return @@settings
+  end
 
   def self.setDifficulty(id)
     if LevelScalingSettings::DIFFICULTIES[id] == nil
@@ -47,37 +50,21 @@ class AutomaticLevelScaling
     # Checks for only_scale_if_higher and only_scale_if_lower
     is_blocked_by_higher_level = @@settings[:only_scale_if_higher] && pokemon.level > new_level
     is_blocked_by_lower_level = @@settings[:only_scale_if_lower] && pokemon.level < new_level
+    return if is_blocked_by_higher_level || is_blocked_by_lower_level
 
-    unless is_blocked_by_higher_level || is_blocked_by_lower_level
-      # Proportional scaling
-      if @@settings[:proportional_scaling]
-        new_level += difference_from_average
-        new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
-      end
-
-      pokemon.level = new_level
-
-      # Evolution part
-      AutomaticLevelScaling.setNewStage(pokemon) if @@settings[:automatic_evolutions]
-
-      pokemon.calc_stats
-      pokemon.reset_moves if @@settings[:update_moves]
+    # Proportional scaling
+    if @@settings[:proportional_scaling]
+      new_level += difference_from_average
+      new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
     end
 
-    # Settings reset
-    if @@settings[:temporary]
-      @@settings = {
-        temporary: false,
-        automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
-        include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES,
-        first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
-        second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
-        proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING,
-        only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER,
-        only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
-        update_moves: true
-      }
-    end
+    pokemon.level = new_level
+
+    # Evolution part
+    AutomaticLevelScaling.setNewStage(pokemon) if @@settings[:automatic_evolutions]
+
+    pokemon.calc_stats
+    pokemon.reset_moves if @@settings[:update_moves]
   end
 
   def self.setNewStage(pokemon)
