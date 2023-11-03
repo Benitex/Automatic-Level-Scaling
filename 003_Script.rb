@@ -4,7 +4,7 @@
 #===============================================================================
 
 class AutomaticLevelScaling
-  @@selectedDifficulty = Difficulty.new
+  @@selected_difficulty = Difficulty.new
   @@settings = {
     temporary: false,
     automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
@@ -21,7 +21,7 @@ class AutomaticLevelScaling
     if LevelScalingSettings::DIFFICULTIES[id] == nil
       raise _INTL("No difficulty with id \"{1}\" was provided in the DIFFICULTIES Hash of Settings.", id)
     else
-      @@selectedDifficulty = LevelScalingSettings::DIFFICULTIES[id]
+      @@selected_difficulty = LevelScalingSettings::DIFFICULTIES[id]
     end
   end
 
@@ -29,11 +29,11 @@ class AutomaticLevelScaling
     level = pbBalancedLevel($player.party) - 2 # pbBalancedLevel increses level by 2 to challenge the player
 
     # Difficulty modifiers
-    level += @@selectedDifficulty.fixed_increase
-    if @@selectedDifficulty.random_increase < 0
-      level += rand(@@selectedDifficulty.random_increase..0)
-    elsif @@selectedDifficulty.random_increase > 0
-      level += rand(@@selectedDifficulty.random_increase)
+    level += @@selected_difficulty.fixed_increase
+    if @@selected_difficulty.random_increase < 0
+      level += rand(@@selected_difficulty.random_increase..0)
+    elsif @@selected_difficulty.random_increase > 0
+      level += rand(@@selected_difficulty.random_increase)
     end
 
     level = level.clamp(1, GameData::GrowthRate.max_level)
@@ -94,23 +94,23 @@ class AutomaticLevelScaling
       end
     end
 
-    regionalForm = false
+    is_regional_form = false
     for species in LevelScalingSettings::POKEMON_WITH_REGIONAL_FORMS do
-      regionalForm = true if pokemon.isSpecies?(species)
+      is_regional_form = true if pokemon.isSpecies?(species)
     end
 
     (2 - stage).times do |_|
       evolutions = GameData::Species.get(pokemon.species).get_evolutions
 
       # Checks if the species only evolve by level up
-      other_evolving_method = false
+      has_other_evolving_method = false
       evolutions.length.times { |i|
         if evolutions[i][1] != :Level
-          other_evolving_method = true
+          has_other_evolving_method = true
         end
       }
 
-      unless other_evolving_method || regionalForm  # Species that evolve by level up
+      unless has_other_evolving_method || is_regional_form  # Species that evolve by level up
         if pokemon.check_evolution_on_level_up != nil
           pokemon.species = pokemon.check_evolution_on_level_up
         end
@@ -122,10 +122,10 @@ class AutomaticLevelScaling
         if pokemon.level >= level
           if evolutions.length == 1         # Species with only one possible evolution
             pokemon.species = evolutions[0][0]
-            pokemon.setForm(form) if regionalForm
+            pokemon.setForm(form) if is_regional_form
 
           elsif evolutions.length > 1
-            if regionalForm
+            if is_regional_form
               if !pokemon.isSpecies?(:MEOWTH)
                 if form >= evolutions.length  # regional form
                   pokemon.species = evolutions[0][0]
