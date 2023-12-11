@@ -8,6 +8,7 @@ class AutomaticLevelScaling
   @@settings = {
     temporary: false,
     automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
+    include_non_natural_evolutions: LevelScalingSettings::INCLUDE_NON_NATURAL_EVOLUTIONS,
     include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES,
     first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
     second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
@@ -59,81 +60,68 @@ class AutomaticLevelScaling
     end
 
     pokemon.level = new_level
-
-    # Evolution part
     AutomaticLevelScaling.setNewStage(pokemon) if @@settings[:automatic_evolutions]
-
     pokemon.calc_stats
     pokemon.reset_moves if @@settings[:update_moves]
   end
 
   def self.setNewStage(pokemon)
     original_species = pokemon.species
-    form = pokemon.form   # regional form
-    stage = 0             # evolution stage
+    original_form = pokemon.form    # regional form
+    evolution_stage = 0
 
     if @@settings[:include_previous_stages]
-      pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
+      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # revert to the first stage
     else
       # Checks if the pokemon has evolved
-      if pokemon.species != GameData::Species.get(pokemon.species).get_baby_species
-        stage = 1
+      if pokemon.species != GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species
+        evolution_stage = 1
       end
     end
 
-    is_regional_form = false
-    for species in LevelScalingSettings::POKEMON_WITH_REGIONAL_FORMS do
-      is_regional_form = true if pokemon.isSpecies?(species)
-    end
+    (2 - evolution_stage).times do |_|
+      evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
+      possible_evolutions = []
+      for evolution in evolutions
+        possible_evolutions.push(evolution) if evolution[1] != :None
+      end
 
-    (2 - stage).times do |_|
-      evolutions = GameData::Species.get(pokemon.species).get_evolutions
-
-      # Checks if the species only evolve by level up
-      has_other_evolving_method = false
-      evolutions.length.times { |i|
-        if evolutions[i][1] != :Level
-          has_other_evolving_method = true
+      # Checks if the species only evolves by natural methods
+      only_evolves_by_natural_methods = true
+      for evolution in possible_evolutions
+        if !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
+          only_evolves_by_natural_methods = false
         end
-      }
+      end
+      return if !only_evolves_by_natural_methods && !@@settings[:include_non_natural_evolutions]
 
-      unless has_other_evolving_method || is_regional_form  # Species that evolve by level up
+      if only_evolves_by_natural_methods
         if pokemon.check_evolution_on_level_up != nil
           pokemon.species = pokemon.check_evolution_on_level_up
         end
 
-      else  # For species with other evolving methods
-        # Checks if the pokemon is in it's midform and defines the level to evolve
-        level = @@settings[stage == 0 ? :first_evolution_level : :second_evolution_level]
+      else
+        # Defines the evolution level according to the current stage
+        level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level]
 
         if pokemon.level >= level
-          if evolutions.length == 1         # Species with only one possible evolution
-            pokemon.species = evolutions[0][0]
-            pokemon.setForm(form) if is_regional_form
+          if possible_evolutions.length == 1      # Species with only one possible evolution
+            pokemon.species = possible_evolutions[0][0]
 
-          elsif evolutions.length > 1
-            if is_regional_form
-              if form >= evolutions.length  # regional form
-                pokemon.species = evolutions[0][0]
-                pokemon.setForm(form)
-              else                          # regional evolution
-                pokemon.species = evolutions[form][0]
-              end
-
-            else                            # Species with multiple possible evolutions
-              pokemon.species = evolutions[rand(0, evolutions.length - 1)][0]
-              # Checks for the evolution defined in the PBS
-              for evolution in evolutions do
-                if evolution[0] == original_species
-                  pokemon.species = evolution[0]
-                end
+          elsif possible_evolutions.length > 1    # Species with multiple possible evolutions
+            pokemon.species = possible_evolutions.sample[0]
+            # If the original species is a specific evolution, uses it instead of the random one
+            for evolution in possible_evolutions do
+              if evolution[0] == original_species
+                pokemon.species = evolution[0]
               end
             end
           end
         end
       end
 
-      stage += 1
+      pokemon.setForm(original_form)
+      evolution_stage += 1
     end
   end
 
@@ -144,12 +132,16 @@ class AutomaticLevelScaling
       if !value.is_a?(Integer)
         raise _INTL("\"{1}\" requires an integer value, but {2} was provided.",setting,value)
       end
-    when "updateMoves", "automaticEvolutions", "includePreviousStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
+    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
       if !(value.is_a?(FalseClass) || value.is_a?(TrueClass))
         raise _INTL("\"{1}\" requires a boolean value, but {2} was provided.",setting,value)
       end
     else
-      raise _INTL("\"{1}\" is not a defined setting name.",setting)
+      if setting.include?("_")
+        raise _INTL("\"{1}\" is not a defined setting name. Try using camelCase instead of underscore_case.",setting)
+      else
+        raise _INTL("\"{1}\" is not a defined setting name.",setting)
+      end
     end
 
     @@settings[:temporary] = true
@@ -158,6 +150,8 @@ class AutomaticLevelScaling
       @@settings[:update_moves] = value
     when "automaticEvolutions"
       @@settings[:automatic_evolutions] = value
+    when "includeNonNaturalEvolutions"
+      @@settings[:include_non_natural_evolutions] = value
     when "includePreviousStages"
       @@settings[:include_previous_stages] = value
     when "proportionalScaling"
@@ -177,6 +171,7 @@ class AutomaticLevelScaling
     temporary: false,
     update_moves: true,
     automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
+    include_non_natural_evolutions: LevelScalingSettings::INCLUDE_NON_NATURAL_EVOLUTIONS,
     include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES,
     proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING,
     first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
@@ -190,6 +185,7 @@ class AutomaticLevelScaling
     @@settings[:second_evolution_level] = second_evolution_level
     @@settings[:proportional_scaling] = proportional_scaling
     @@settings[:automatic_evolutions] = automatic_evolutions
+    @@settings[:include_non_natural_evolutions] = include_non_natural_evolutions,
     @@settings[:include_previous_stages] = include_previous_stages
     @@settings[:only_scale_if_higher] = only_scale_if_higher
     @@settings[:only_scale_if_lower] = only_scale_if_lower
