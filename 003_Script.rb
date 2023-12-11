@@ -67,79 +67,61 @@ class AutomaticLevelScaling
 
   def self.setNewStage(pokemon)
     original_species = pokemon.species
-    form = pokemon.form   # regional form
-    stage = 0             # evolution stage
+    original_form = pokemon.form   # regional form
+    evolution_stage = 0
 
     if @@settings[:include_previous_stages]
-      pokemon.species = GameData::Species.get(pokemon.species).get_baby_species # revert to the first stage
+      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # revert to the first stage
     else
       # Checks if the pokemon has evolved
-      if pokemon.species != GameData::Species.get(pokemon.species).get_baby_species
-        stage = 1
+      if pokemon.species != GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species
+        evolution_stage = 1
       end
     end
 
-    is_regional_form = LevelScalingSettings::POKEMON_WITH_REGIONAL_FORMS.include?(pokemon.species)
+    (2 - evolution_stage).times do |_|
+      evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
+      possible_evolutions = []
+      for evolution in evolutions
+        possible_evolutions.push(evolution) if evolution[1] != :None
+      end
 
-    (2 - stage).times do |_|
-      possible_evolutions = GameData::Species.get(pokemon.species).get_evolutions
-
-      # Checks if the species only evolve by level up
-      has_other_evolving_method = false
+      # Checks if the species only evolves by natural methods
+      only_evolves_by_natural_methods = true
       for evolution in possible_evolutions
-        unless LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
-          has_other_evolving_method = true
+        if !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
+          only_evolves_by_natural_methods = false
         end
       end
-      return if has_other_evolving_method && !@@settings[:include_non_natural_evolutions]
+      return if !only_evolves_by_natural_methods && !@@settings[:include_non_natural_evolutions]
 
-      unless has_other_evolving_method || is_regional_form  # Species that evolve by level up
+      if only_evolves_by_natural_methods
         if pokemon.check_evolution_on_level_up != nil
           pokemon.species = pokemon.check_evolution_on_level_up
         end
 
-      else  # For species with other evolving methods
-        # Checks if the pokemon is in it's midform and defines the level to evolve
-        level = @@settings[stage == 0 ? :first_evolution_level : :second_evolution_level]
+      else
+        # Defines the evolution level according to the current stage
+        level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level]
 
         if pokemon.level >= level
-          if possible_evolutions.length == 1         # Species with only one possible evolution
+          if possible_evolutions.length == 1      # Species with only one possible evolution
             pokemon.species = possible_evolutions[0][0]
-            pokemon.setForm(form) if is_regional_form
 
-          elsif possible_evolutions.length > 1
-            if is_regional_form
-              unless pokemon.isSpecies?(:MEOWTH)
-                if form >= possible_evolutions.length  # regional form
-                  pokemon.species = possible_evolutions[0][0]
-                  pokemon.setForm(form)
-                else                          # regional evolution
-                  pokemon.species = possible_evolutions[form][0]
-                end
-
-              else  # Meowth has two possible evolutions and a regional form depending on its origin region
-                if form == 0 || form == 1
-                  pokemon.species = possible_evolutions[0][0]
-                  pokemon.setForm(form)
-                else
-                  pokemon.species = possible_evolutions[1][0]
-                end
-              end
-
-            else                            # Species with multiple possible evolutions
-              pokemon.species = possible_evolutions[rand(0, possible_evolutions.length - 1)][0]
-              # Checks for the evolution defined in the PBS
-              for evolution in possible_evolutions do
-                if evolution[0] == original_species
-                  pokemon.species = evolution[0]
-                end
+          elsif possible_evolutions.length > 1    # Species with multiple possible evolutions
+            pokemon.species = possible_evolutions.sample[0]
+            # If the original species is a specific evolution, uses it instead of the random one
+            for evolution in possible_evolutions do
+              if evolution[0] == original_species
+                pokemon.species = evolution[0]
               end
             end
           end
         end
       end
 
-      stage += 1
+      pokemon.setForm(original_form)
+      evolution_stage += 1
     end
   end
 
