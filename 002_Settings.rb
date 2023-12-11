@@ -24,7 +24,7 @@ module LevelScalingSettings
   ONLY_SCALE_IF_HIGHER = false   # The script will only scale levels if the player is overleveled
   ONLY_SCALE_IF_LOWER = false    # The script will only scale levels if the player is underleveled
 
-  # You can add your own difficulties in the following Hash, using the function "Difficulty.new(fixed_increase, random_increase)"
+  # You can add your own difficulties in the following Hash, using the constructor "Difficulty.new(fixed_increase, random_increase)"
   #   "fixed_increase" is a pre defined value that increases the level
   #   "random_increase" is a randomly selected value between 0 and the value provided
   # Each difficulty has an index in the Hash, which represents the difficulty
@@ -36,6 +36,15 @@ module LevelScalingSettings
     4 => Difficulty.new,                                          # Avarage
     5 => Difficulty.new(fixed_increase: -2, random_increase: 5),  # Standard Essentials
   }
+
+  INCLUDE_NON_NATURAL_EVOLUTIONS = true # evolve all pokemon, even if it only evolves by a method other than level up
+  NATURAL_EVOLUTION_METHODS = [
+    :Level,
+    :LevelMale, :LevelFemale,
+    :LevelDay, :LevelNight, :LevelMorning, :LevelAfternoon, :LevelEvening,
+    :AttackGreater, :AtkDefEqual, :DefenseGreater,
+    :Silcoon, :Cascoon,
+  ]
 
   # You can insert the first stage of a custom regional form here
   # Pokemon not included in this array will have their evolution selected randomly among all their possible forms

@@ -46,12 +46,13 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 | updateMoves | Set to false if you want to use the pre-defined moves in the PBS. |
 | proportionalScaling | When true, Takes original level differences from the PBS into consideration when scaling levels. |
 | automaticEvolutions | Set to false if you don't want pokemon automatically evolving. |
+| includeNonNaturalEvolutions | Set to false if you want to disable evolution for pokemon that evolve with evolution stones, happiness, etc. |
 | includePreviousStages | When true, returns pokemon to their previous evolution stages if they did not reach their evolution level. |
 | firstEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their mid-form. |
 | secondEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their final form. |
 | onlyScaleIfHigher | When true, the script will only scale levels if the player is over-leveled. |
 | onlyScaleIfLower | When true, the script will only scale levels if the player is under-leveled. |
-| temporary | Only in `setSettings`. Restores all settings to their default values after the next battle. |
+| temporary | Restores all settings to their default values after the next battle. Only possible in `setSettings` because `setTemporarySetting` enables this by default. |
 
 **Warning**: `setTemporarySetting` uses camelCase for parameters and `setSettings` uses underscore_case.
 
