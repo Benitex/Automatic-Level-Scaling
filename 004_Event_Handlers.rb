@@ -8,17 +8,15 @@ Events.onWildPokemonCreate += proc { |_sender, e|
   pokemon = e[0]
   id = pbGet(LevelScalingSettings::WILD_VARIABLE)
   next if id == 0
-  AutomaticLevelScaling.setDifficulty(id)
-
+  AutomaticLevelScaling.difficulty = id
   AutomaticLevelScaling.setNewLevel(pokemon)
-  AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
 }
 
 # Activates script when a trainer pokemon is created
 Events.onTrainerPartyLoad += proc { |_sender, trainer|
   id = pbGet(LevelScalingSettings::TRAINER_VARIABLE)
   next if !trainer || id == 0
-  AutomaticLevelScaling.setDifficulty(id)
+  AutomaticLevelScaling.difficulty = id
 
   avarage_level = 0
   trainer[0].party.each { |pokemon| avarage_level += pokemon.level }
@@ -27,11 +25,10 @@ Events.onTrainerPartyLoad += proc { |_sender, trainer|
   for pokemon in trainer[0].party
     AutomaticLevelScaling.setNewLevel(pokemon, pokemon.level - avarage_level)
   end
-  AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
 }
 
 # Updates partner's pokemon levels after battle
-Events.onEndBattle += proc { |_sender,e|
+Events.onEndBattle += proc { |_sender, e|
   id = pbGet(LevelScalingSettings::TRAINER_VARIABLE)
   next if !$PokemonGlobal.partner || id == 0
 
@@ -42,5 +39,11 @@ Events.onEndBattle += proc { |_sender,e|
   for pokemon in $PokemonGlobal.partner[3] do
     AutomaticLevelScaling.setNewLevel(pokemon, pokemon.level - avarage_level)
   end
-  AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
+}
+
+# Resets settings after battle if they are temporaray
+Events.onEndBattle += proc { |_sender, e|
+  if AutomaticLevelScaling.settings[:temporary]
+    AutomaticLevelScaling.setSettings
+  end
 }

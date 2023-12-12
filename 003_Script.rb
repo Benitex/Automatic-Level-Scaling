@@ -10,6 +10,7 @@ class AutomaticLevelScaling
     automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
     include_non_natural_evolutions: LevelScalingSettings::INCLUDE_NON_NATURAL_EVOLUTIONS,
     include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES,
+    include_next_stages: LevelScalingSettings::INCLUDE_NEXT_STAGES,
     first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
     second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
     proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING,
@@ -21,7 +22,13 @@ class AutomaticLevelScaling
     return @@settings
   end
 
-  def self.setDifficulty(id)
+  # Constants to make the get_evolutions method array more readable
+  # [Species, Method, Parameter]
+  SPECIES = 0
+  METHOD = 1
+  PARAMETER = 2
+
+  def self.difficulty=(id)
     if LevelScalingSettings::DIFFICULTIES[id] == nil
       raise _INTL("No difficulty with id \"{1}\" was provided in the DIFFICULTIES Hash of Settings.", id)
     else
@@ -67,11 +74,11 @@ class AutomaticLevelScaling
 
   def self.setNewStage(pokemon)
     original_species = pokemon.species
-    original_form = pokemon.form    # regional form
+    original_form = pokemon.form   # regional form
     evolution_stage = 0
 
     if @@settings[:include_previous_stages]
-      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # revert to the first stage
+      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # Reverts to the first evolution stage
     else
       # Checks if the pokemon has evolved
       if pokemon.species != GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species
@@ -80,41 +87,23 @@ class AutomaticLevelScaling
     end
 
     (2 - evolution_stage).times do |_|
-      evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
-      possible_evolutions = []
-      for evolution in evolutions
-        possible_evolutions.push(evolution) if evolution[1] != :None
-      end
+      possible_evolutions = AutomaticLevelScaling.getPossibleEvolutions(pokemon)
+      return if possible_evolutions.length == 0 || !@@settings[:include_next_stages] && pokemon.species == original_species
 
-      # Checks if the species only evolves by natural methods
-      only_evolves_by_natural_methods = true
-      for evolution in possible_evolutions
-        if !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
-          only_evolves_by_natural_methods = false
-        end
-      end
-      return if !only_evolves_by_natural_methods && !@@settings[:include_non_natural_evolutions]
+      evolution_level = AutomaticLevelScaling.getEvolutionLevel(pokemon, possible_evolutions, evolution_stage)
 
-      if only_evolves_by_natural_methods
-        if pokemon.check_evolution_on_level_up != nil
-          pokemon.species = pokemon.check_evolution_on_level_up
-        end
+      # Evolution
+      if pokemon.level >= evolution_level
+        if possible_evolutions.length == 1
+          pokemon.species = possible_evolutions[0][SPECIES]
 
-      else
-        # Defines the evolution level according to the current stage
-        level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level]
+        elsif possible_evolutions.length > 1
+          pokemon.species = possible_evolutions.sample[SPECIES]
 
-        if pokemon.level >= level
-          if possible_evolutions.length == 1      # Species with only one possible evolution
-            pokemon.species = possible_evolutions[0][0]
-
-          elsif possible_evolutions.length > 1    # Species with multiple possible evolutions
-            pokemon.species = possible_evolutions.sample[0]
-            # If the original species is a specific evolution, uses it instead of the random one
-            for evolution in possible_evolutions do
-              if evolution[0] == original_species
-                pokemon.species = evolution[0]
-              end
+          # If the original species is a specific evolution, uses it instead of the random one
+          for evolution in possible_evolutions do
+            if evolution[SPECIES] == original_species
+              pokemon.species = evolution[SPECIES]
             end
           end
         end
@@ -125,22 +114,59 @@ class AutomaticLevelScaling
     end
   end
 
+  def self.getPossibleEvolutions(pokemon)
+    possible_evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
+
+    possible_evolutions = possible_evolutions.delete_if { |evolution|
+      # Regional evolutions of pokemon not in their regional forms
+      evolution[METHOD] == :None ||
+      # Remove non natural evolutions evolutions if include_non_natural_evolutions is false
+      !@@settings[:include_non_natural_evolutions] && !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[METHOD])
+    }
+
+    return possible_evolutions
+  end
+
+  def self.getEvolutionLevel(pokemon, possible_evolutions, evolution_stage)
+    # Default evolution levels according to the pokemon evolution stage
+    evolution_level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level]
+
+    if possible_evolutions.length == 1
+      # Updates the evolution level if the evolution is by a natural method
+      if possible_evolutions[0][PARAMETER].is_a?(Integer) && LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(possible_evolutions[0][METHOD])
+        evolution_level = possible_evolutions[0][PARAMETER]
+      end
+
+    elsif possible_evolutions.length > 1
+      # Updates the evolution level if one of the evolutions is a natural evolution method. If there's more than one, uses the lowest one
+      level = GameData::GrowthRate.max_level + 1
+      for evolution in possible_evolutions do
+        if evolution[PARAMETER].is_a?(Integer) && LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[METHOD])
+          level = evolution[PARAMETER] if evolution[PARAMETER] < level
+        end
+      end
+      evolution_level = level if level < GameData::GrowthRate.max_level + 1
+    end
+
+    return evolution_level
+  end
+
   def self.setTemporarySetting(setting, value)
     # Parameters validation
     case setting
     when "firstEvolutionLevel", "secondEvolutionLevel"
       if !value.is_a?(Integer)
-        raise _INTL("\"{1}\" requires an integer value, but {2} was provided.",setting,value)
+        raise _INTL("\"{1}\" requires an integer value, but {2} was provided.", setting, value)
       end
-    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
+    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages", "includeNextStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
       if !(value.is_a?(FalseClass) || value.is_a?(TrueClass))
-        raise _INTL("\"{1}\" requires a boolean value, but {2} was provided.",setting,value)
+        raise _INTL("\"{1}\" requires a boolean value, but {2} was provided.", setting, value)
       end
     else
       if setting.include?("_")
-        raise _INTL("\"{1}\" is not a defined setting name. Try using camelCase instead of underscore_case.",setting)
+        raise _INTL("\"{1}\" is not a defined setting name. Try using camelCase instead of underscore_case.", setting)
       else
-        raise _INTL("\"{1}\" is not a defined setting name.",setting)
+        raise _INTL("\"{1}\" is not a defined setting name.", setting)
       end
     end
 
@@ -154,6 +180,8 @@ class AutomaticLevelScaling
       @@settings[:include_non_natural_evolutions] = value
     when "includePreviousStages"
       @@settings[:include_previous_stages] = value
+    when "includeNextStages"
+      @@settings[:include_next_stages] = value
     when "proportionalScaling"
       @@settings[:proportional_scaling] = value
     when "firstEvolutionLevel"
@@ -173,6 +201,7 @@ class AutomaticLevelScaling
     automatic_evolutions: LevelScalingSettings::AUTOMATIC_EVOLUTIONS,
     include_non_natural_evolutions: LevelScalingSettings::INCLUDE_NON_NATURAL_EVOLUTIONS,
     include_previous_stages: LevelScalingSettings::INCLUDE_PREVIOUS_STAGES,
+    include_next_stages: LevelScalingSettings::INCLUDE_NEXT_STAGES,
     proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING,
     first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
     second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
@@ -187,6 +216,7 @@ class AutomaticLevelScaling
     @@settings[:automatic_evolutions] = automatic_evolutions
     @@settings[:include_non_natural_evolutions] = include_non_natural_evolutions,
     @@settings[:include_previous_stages] = include_previous_stages
+    @@settings[:include_next_stages] = include_next_stages
     @@settings[:only_scale_if_higher] = only_scale_if_higher
     @@settings[:only_scale_if_lower] = only_scale_if_lower
   end
