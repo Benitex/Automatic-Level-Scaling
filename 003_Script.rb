@@ -71,7 +71,7 @@ class AutomaticLevelScaling
     evolution_stage = 0
 
     if @@settings[:include_previous_stages]
-      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # revert to the first stage
+      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # Reverts to the first evolution stage
     else
       # Checks if the pokemon has evolved
       if pokemon.species != GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species
@@ -80,41 +80,41 @@ class AutomaticLevelScaling
     end
 
     (2 - evolution_stage).times do |_|
-      evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
-      possible_evolutions = []
-      for evolution in evolutions
-        possible_evolutions.push(evolution) if evolution[1] != :None
+      possible_evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
+      possible_evolutions = possible_evolutions.delete_if { |evolution|
+        evolution[1] == :None || # Regional evolutions of pokemon not in their regional forms
+        !@@settings[:include_non_natural_evolutions] && !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
+      }
+
+      evolution_level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level] # Default evolution level according to the current stage
+      if possible_evolutions.length == 1
+        # Updates the evolution level if the evolution is by a natural method
+        if possible_evolutions[0][2].is_a?(Integer) && LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(possible_evolutions[0][1])
+          evolution_level = possible_evolutions[0][2]
+        end
+      elsif possible_evolutions.length > 1
+        # Updates the evolution level if one of the evolutions is a natural evolution method. If there's more than one, uses the lowest one
+        level = GameData::GrowthRate.max_level + 1
+        for evolution in possible_evolutions do
+          if evolution[2].is_a?(Integer) && LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
+            level = evolution[2] if evolution[2] < level
+          end
+        end
+        evolution_level = level if level < GameData::GrowthRate.max_level + 1
       end
 
-      # Checks if the species only evolves by natural methods
-      only_evolves_by_natural_methods = true
-      for evolution in possible_evolutions
-        if !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[1])
-          only_evolves_by_natural_methods = false
-        end
-      end
-      return if !only_evolves_by_natural_methods && !@@settings[:include_non_natural_evolutions]
+      # Evolution
+      if pokemon.level >= evolution_level
+        if possible_evolutions.length == 1
+          pokemon.species = possible_evolutions[0][0]
 
-      if only_evolves_by_natural_methods
-        if pokemon.check_evolution_on_level_up != nil
-          pokemon.species = pokemon.check_evolution_on_level_up
-        end
+        elsif possible_evolutions.length > 1
+          pokemon.species = possible_evolutions.sample[0]
 
-      else
-        # Defines the evolution level according to the current stage
-        level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level]
-
-        if pokemon.level >= level
-          if possible_evolutions.length == 1      # Species with only one possible evolution
-            pokemon.species = possible_evolutions[0][0]
-
-          elsif possible_evolutions.length > 1    # Species with multiple possible evolutions
-            pokemon.species = possible_evolutions.sample[0]
-            # If the original species is a specific evolution, uses it instead of the random one
-            for evolution in possible_evolutions do
-              if evolution[0] == original_species
-                pokemon.species = evolution[0]
-              end
+          # If the original species is a specific evolution, uses it instead of the random one
+          for evolution in possible_evolutions do
+            if evolution[0] == original_species
+              pokemon.species = evolution[0]
             end
           end
         end
