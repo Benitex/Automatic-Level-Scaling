@@ -30,8 +30,9 @@ module LevelScalingSettings
   ONLY_SCALE_IF_HIGHER = false   # The script will only scale levels if the player is overleveled
   ONLY_SCALE_IF_LOWER = false    # The script will only scale levels if the player is underleveled
 
-  AUTOMATIC_EVOLUTIONS = true
-  INCLUDE_PREVIOUS_STAGES = true # Reverts pokemon to previous evolution stages if they did not reach the evolution level
+  AUTOMATIC_EVOLUTIONS = true     # Updates the evolution stage of the pokemon
+  INCLUDE_PREVIOUS_STAGES = true  # Reverts pokemon to previous evolution stages if they did not reach the evolution level
+  INCLUDE_NEXT_STAGES = true      # If false, stops evolution at the species used in the function call (or defined in the PBS)
 
   INCLUDE_NON_NATURAL_EVOLUTIONS = true # Evolve all pokemon, even if it only evolves by a non natural method
   # Evolutions that don't use the methods of this array won't be considered if INCLUDE_NON_NATURAL_EVOLUTIONS is false

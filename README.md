@@ -45,9 +45,10 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 | ---- | ----------- |
 | updateMoves | Set to false if you want to use the pre-defined moves in the PBS. |
 | proportionalScaling | When true, Takes original level differences from the PBS into consideration when scaling levels. |
-| automaticEvolutions | Set to false if you don't want pokemon automatically evolving. |
+| automaticEvolutions | Set to false if you don't want pokemon to update their evolution stage. |
 | includeNonNaturalEvolutions | Set to false if you want to disable evolution for pokemon that evolve with evolution stones, happiness, etc. You can see and change the natural methods in the NATURAL_EVOLUTION_METHODS array in Settings.rb. |
 | includePreviousStages | When true, returns pokemon to their previous evolution stages if they did not reach their evolution level. |
+| includeNextStages | If false, stops evolution at the species used in the function call (or defined in the PBS). In other words, you can set the maximum evolution of a pokemon in the wild or for a specific trainer. |
 | firstEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their mid-form. |
 | secondEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their final form. |
 | onlyScaleIfHigher | When true, the script will only scale levels if the player is over-leveled. |

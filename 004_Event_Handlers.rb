@@ -8,7 +8,7 @@ EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
   proc { |pokemon|
     id = pbGet(LevelScalingSettings::WILD_VARIABLE)
     next if id == 0
-    AutomaticLevelScaling.setDifficulty(id)
+    AutomaticLevelScaling.difficulty = id
 
     AutomaticLevelScaling.setNewLevel(pokemon)
     AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
@@ -20,7 +20,7 @@ EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
   proc { |trainer|
     id = pbGet(LevelScalingSettings::TRAINER_VARIABLE)
     next if !trainer || id == 0
-    AutomaticLevelScaling.setDifficulty(id)
+    AutomaticLevelScaling.difficulty = id
 
     avarage_level = 0
     trainer.party.each { |pokemon| avarage_level += pokemon.level }
