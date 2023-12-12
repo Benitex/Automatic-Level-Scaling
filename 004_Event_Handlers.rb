@@ -9,9 +9,7 @@ EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
     id = pbGet(LevelScalingSettings::WILD_VARIABLE)
     next if id == 0
     AutomaticLevelScaling.difficulty = id
-
     AutomaticLevelScaling.setNewLevel(pokemon)
-    AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
   }
 )
 
@@ -29,7 +27,6 @@ EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
     for pokemon in trainer.party do
       AutomaticLevelScaling.setNewLevel(pokemon, pokemon.level - avarage_level)
     end
-    AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
   }
 )
 
@@ -46,6 +43,14 @@ EventHandlers.add(:on_end_battle, :update_partner_levels,
     for pokemon in $PokemonGlobal.partner[3] do
       AutomaticLevelScaling.setNewLevel(pokemon, pokemon.level - avarage_level)
     end
-    AutomaticLevelScaling.setSettings if AutomaticLevelScaling.settings[:temporary] # reset settings
+  }
+)
+
+# Resets settings after battle if they are temporaray
+EventHandlers.add(:on_end_battle, :reset_settings,
+  proc { |_decision, _canLose|
+    if AutomaticLevelScaling.settings[:temporary]
+      AutomaticLevelScaling.setSettings
+    end 
   }
 )
