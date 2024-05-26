@@ -4,9 +4,11 @@ This Pokemon Essentials v21, v20 and v19 plugin will change wild and trainer pok
 
 ## Installation
 
-To install this plugin, extract the zip file into your game root folder.
+To install this plugin, extract the zip file from the [latest release](https://github.com/Benitex/Automatic-Level-Scaling/releases) into your game root folder.
+
 Then, you should check if you're already using variables 99 and 100 in your game. These are the variables that control trainer and wild pokemon difficulty, respectively.
 If you are already using these variables, go to the `Settings.rb` script and change the value to whichever variable you want to use to change the difficulty.
+
 In `Settings.rb`, you can also change some options, create other difficulty options, and enable more complex conditions for level scaling.
 This is everything you need to do to install the script, but you should also activate it by selecting a difficulty.
 
@@ -23,6 +25,8 @@ Here's an event showing some of the options to change difficulty:
 ### Setting up gift pokemon, trades, fixed encounters
 
 Whenever you find a field where you should insert a pokemon level (except for PBS), you can use the function `AutomaticLevelScaling.getScaledLevel` and the level will be automatically defined according to the currently selected difficulty.
+
+## Advanced Options
 
 ### Creating new difficulties
 
@@ -59,4 +63,4 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 
 ## Detailed credits
 
-The one script I was inspired by the most is [Joltik's Advanced Pokemon Level Balancing + evolution](https://www.pokecommunity.com/showthread.php?t=409828), but the default Essentials random dungeon script was also important to make this script.
+You can credit Benitex, Joltik, and Umbreon if you use this plugin in your game. I wrote the script myself, but I was inspired by [Joltik's Advanced Pokemon Level Balancing + evolution](https://www.pokecommunity.com/showthread.php?t=409828), and the default Essentials random dungeon script.
