@@ -21,7 +21,7 @@ module LevelScalingSettings
     4 => Difficulty.new,                                          # Avarage
     5 => Difficulty.new(fixed_increase: -2, random_increase: 5),  # Standard Essentials
   }
-  
+
   # Scales levels but takes original level differences into consideration
   # Don't forget to set random_increase values to 0 when using this setting
   PROPORTIONAL_SCALING = false

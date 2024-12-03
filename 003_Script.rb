@@ -22,12 +22,6 @@ class AutomaticLevelScaling
     return @@settings
   end
 
-  # Constants to make the get_evolutions method array more readable
-  # [Species, Method, Parameter]
-  SPECIES = 0
-  METHOD = 1
-  PARAMETER = 2
-
   def self.difficulty=(id)
     if LevelScalingSettings::DIFFICULTIES[id] == nil
       raise _INTL("No difficulty with id \"{1}\" was provided in the DIFFICULTIES Hash of Settings.", id)
@@ -55,100 +49,32 @@ class AutomaticLevelScaling
   def self.setNewLevel(pokemon, difference_from_average = 0)
     new_level = AutomaticLevelScaling.getScaledLevel
 
-    # Checks for only_scale_if_higher and only_scale_if_lower
-    is_blocked_by_higher_level = @@settings[:only_scale_if_higher] && pokemon.level > new_level
-    is_blocked_by_lower_level = @@settings[:only_scale_if_lower] && pokemon.level < new_level
-    return if is_blocked_by_higher_level || is_blocked_by_lower_level
-
     # Proportional scaling
     if @@settings[:proportional_scaling]
       new_level += difference_from_average
       new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
     end
 
-    pokemon.level = new_level
-    AutomaticLevelScaling.setNewStage(pokemon) if @@settings[:automatic_evolutions]
-    pokemon.calc_stats
-    pokemon.reset_moves if @@settings[:update_moves]
+    pokemon.scale(new_level)
+  end
+
+  def self.shouldScaleLevel?(previous_level, new_level)
+    # Checks for only_scale_if_higher and only_scale_if_lower
+    return false if @@settings[:only_scale_if_higher] && previous_level > new_level
+    return false if @@settings[:only_scale_if_lower] && previous_level < new_level
+    return true
   end
 
   def self.setNewStage(pokemon)
-    original_species = pokemon.species
-    original_form = pokemon.form   # regional form
-    evolution_stage = 0
-
-    if @@settings[:include_previous_stages]
-      pokemon.species = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species # Reverts to the first evolution stage
-    else
-      # Checks if the pokemon has evolved
-      if pokemon.species != GameData::Species.get_species_form(pokemon.species, pokemon.form).get_baby_species
-        evolution_stage = 1
-      end
-    end
-
-    (2 - evolution_stage).times do |_|
-      possible_evolutions = AutomaticLevelScaling.getPossibleEvolutions(pokemon)
-      return if possible_evolutions.length == 0 || !@@settings[:include_next_stages] && pokemon.species == original_species
-
-      evolution_level = AutomaticLevelScaling.getEvolutionLevel(pokemon, possible_evolutions, evolution_stage)
-
-      # Evolution
-      if pokemon.level >= evolution_level
-        if possible_evolutions.length == 1
-          pokemon.species = possible_evolutions[0][SPECIES]
-
-        elsif possible_evolutions.length > 1
-          pokemon.species = possible_evolutions.sample[SPECIES]
-
-          # If the original species is a specific evolution, uses it instead of the random one
-          for evolution in possible_evolutions do
-            if evolution[SPECIES] == original_species
-              pokemon.species = evolution[SPECIES]
-            end
-          end
-        end
-      end
-
-      pokemon.setForm(original_form)
-      evolution_stage += 1
-    end
+    pokemon.scaleEvolutionStage
   end
 
   def self.getPossibleEvolutions(pokemon)
-    possible_evolutions = GameData::Species.get_species_form(pokemon.species, pokemon.form).get_evolutions
-
-    possible_evolutions = possible_evolutions.delete_if { |evolution|
-      # Regional evolutions of pokemon not in their regional forms
-      evolution[METHOD] == :None ||
-      # Remove non natural evolutions evolutions if include_non_natural_evolutions is false
-      !@@settings[:include_non_natural_evolutions] && !LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[METHOD])
-    }
-
-    return possible_evolutions
+    return pokemon.getPossibleEvolutions
   end
 
   def self.getEvolutionLevel(pokemon, possible_evolutions, evolution_stage)
-    # Default evolution levels according to the pokemon evolution stage
-    evolution_level = @@settings[evolution_stage == 0 ? :first_evolution_level : :second_evolution_level]
-
-    if possible_evolutions.length == 1
-      # Updates the evolution level if the evolution is by a natural method
-      if possible_evolutions[0][PARAMETER].is_a?(Integer) && LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(possible_evolutions[0][METHOD])
-        evolution_level = possible_evolutions[0][PARAMETER]
-      end
-
-    elsif possible_evolutions.length > 1
-      # Updates the evolution level if one of the evolutions is a natural evolution method. If there's more than one, uses the lowest one
-      level = GameData::GrowthRate.max_level + 1
-      for evolution in possible_evolutions do
-        if evolution[PARAMETER].is_a?(Integer) && LevelScalingSettings::NATURAL_EVOLUTION_METHODS.include?(evolution[METHOD])
-          level = evolution[PARAMETER] if evolution[PARAMETER] < level
-        end
-      end
-      evolution_level = level if level < GameData::GrowthRate.max_level + 1
-    end
-
-    return evolution_level
+    return pokemon.getEvolutionLevel(evolution_stage == 0)
   end
 
   def self.setTemporarySetting(setting, value)
