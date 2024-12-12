@@ -22,11 +22,14 @@ module LevelScalingSettings
     5 => Difficulty.new(fixed_increase: -2, random_increase: 5),  # Standard Essentials
   }
 
-  SAVE_TRAINER_PARTIES = true  # Trainer parties will keep the same pokemon and levels of the first battle
-
-  # Scales levels but takes original level differences into consideration
-  # (Don't forget to also set random_increase values to 0 when using this setting)
+  # Scales levels but takes original level differences between members of the trainer party into consideration
   PROPORTIONAL_SCALING = false
+
+  # Trainer parties will keep the same pokemon and levels of the first battle
+  SAVE_TRAINER_PARTIES = true
+
+  # Defines a "Map Level" in which all wild pokemon in the map will be, based on the the party when the player first enters the map
+  USE_MAP_LEVEL_FOR_WILD_POKEMON = false
 
   # You can use the following to disable level scaling in any condition other then the selected below
   ONLY_SCALE_IF_HIGHER = false   # The script will only scale levels if the player is overleveled

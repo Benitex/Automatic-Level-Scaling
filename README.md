@@ -43,7 +43,7 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 
 `AutomaticLevelScaling.setSettings` does not automatically revert changes after the next battle and they will be permanent until the game is closed or new changes are made. You can use the `temporary` parameter to revert the changes after the battle. If you don't use it, don't forget to change them back to the original settings after the battle or series of battles. All arguments are optional and can be positioned in any order, use a value of the type indicated after the parameter name.
 
-`AutomaticLevelScaling.setSettings(temporary: boolean, update_moves: boolean, automatic_evolutions: boolean, include_previous_stages: boolean, proportional_scaling: boolean, first_evolution_level: Integer, second_evolution_level: Integer, only_scale_if_higher: boolean, only_scale_if_lower: boolean)`
+`AutomaticLevelScaling.setSettings(temporary: boolean, update_moves: boolean, automatic_evolutions: boolean, include_previous_stages: boolean, proportional_scaling: boolean, first_evolution_level: Integer, second_evolution_level: Integer, only_scale_if_higher: boolean, only_scale_if_lower: boolean, saveTrainerParties: boolean, useMapLevelForWildPokemon: boolean)`
 
 | Name | Description |
 | ---- | ----------- |
@@ -58,6 +58,7 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 | onlyScaleIfHigher | When true, the script will only scale levels if the player is over-leveled. |
 | onlyScaleIfLower | When true, the script will only scale levels if the player is under-leveled. |
 | saveTrainerParties | When true, trainer parties will keep the same pokemon and levels of the first battle. (If the player gets defeated, the party will not be scaled again) |
+| useMapLevelForWildPokemon | When first entering a map, the script will define a scaling level based on the player party and use this level for the map for the rest of the game. |
 | temporary | Restores all settings to their default values after the next battle. Only possible in `setSettings` because `setTemporarySetting` enables this by default. |
 
 **Warning**: `setTemporarySetting` uses camelCase for parameters and `setSettings` uses underscore_case.

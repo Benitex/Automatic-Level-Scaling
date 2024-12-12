@@ -9,7 +9,12 @@ EventHandlers.add(:on_wild_pokemon_created, :automatic_level_scaling,
     id = pbGet(LevelScalingSettings::WILD_VARIABLE)
     next if id == 0
     AutomaticLevelScaling.difficulty = id
-    pokemon.scale
+
+    if AutomaticLevelScaling.settings[:use_map_level_for_wild_pokemon]
+      pokemon.scale(AutomaticLevelScaling.getMapLevel($game_map.map_id))
+    else
+      pokemon.scale
+    end
   }
 )
 
@@ -71,5 +76,14 @@ EventHandlers.add(:on_end_battle, :reset_settings,
     if AutomaticLevelScaling.settings[:temporary]
       AutomaticLevelScaling.setSettings
     end 
+  }
+)
+
+# Set map level when player enters a map
+EventHandlers.add(:on_enter_map, :define_map_level,
+  proc { |old_map_id|
+    next if !AutomaticLevelScaling.settings[:use_map_level_for_wild_pokemon]
+    next if $PokemonGlobal.map_levels.has_key?($game_map.map_id)
+    $PokemonGlobal.map_levels[$game_map.map_id] = AutomaticLevelScaling.getScaledLevel
   }
 )

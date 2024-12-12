@@ -114,4 +114,9 @@ class PokemonGlobalMetadata
     @previous_trainer_parties = {} if !@previous_trainer_parties
     return @previous_trainer_parties
   end
+
+  def map_levels
+    @map_levels = {} if !@map_levels
+    return @map_levels
+  end
 end

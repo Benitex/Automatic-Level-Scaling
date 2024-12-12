@@ -17,6 +17,7 @@ class AutomaticLevelScaling
     only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER,
     only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
     save_trainer_parties: LevelScalingSettings::SAVE_TRAINER_PARTIES,
+    use_map_level_for_wild_pokemon: LevelScalingSettings::USE_MAP_LEVEL_FOR_WILD_POKEMON,
     update_moves: true
   }
 
@@ -37,13 +38,33 @@ class AutomaticLevelScaling
 
     # Difficulty modifiers
     level += @@selected_difficulty.fixed_increase
+
+    unless @@settings[:proportional_scaling] || @@settings[:use_map_level_for_wild_pokemon]
+      if @@selected_difficulty.random_increase < 0
+        level += rand(@@selected_difficulty.random_increase..0)
+      elsif @@selected_difficulty.random_increase > 0
+        level += rand(@@selected_difficulty.random_increase)
+      end
+    end
+
+    level = level.clamp(1, GameData::GrowthRate.max_level)
+
+    return level
+  end
+
+  def self.getMapLevel(map_id)
+    if !$PokemonGlobal.map_levels.has_key?(map_id)
+      $PokemonGlobal.map_levels[map_id] = AutomaticLevelScaling.getScaledLevel
+    end
+
+    level = $PokemonGlobal.map_levels[map_id]
+
+    # Adding randomness from the selected difficulty
     if @@selected_difficulty.random_increase < 0
       level += rand(@@selected_difficulty.random_increase..0)
     elsif @@selected_difficulty.random_increase > 0
       level += rand(@@selected_difficulty.random_increase)
     end
-
-    level = level.clamp(1, GameData::GrowthRate.max_level)
 
     return level
   end
@@ -74,8 +95,8 @@ class AutomaticLevelScaling
       if !value.is_a?(Integer)
         raise _INTL("\"{1}\" requires an integer value, but {2} was provided.", setting, value)
       end
-    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages",
-        "includeNextStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower", "saveTrainerParties"
+    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages", "includeNextStages",
+        "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower", "saveTrainerParties", "useMapLevelForWildPokemon"
       if !(value.is_a?(FalseClass) || value.is_a?(TrueClass))
         raise _INTL("\"{1}\" requires a boolean value, but {2} was provided.", setting, value)
       end
@@ -111,6 +132,8 @@ class AutomaticLevelScaling
       @@settings[:only_scale_if_lower] = value
     when "saveTrainerParties"
       @@settings[:save_trainer_parties] = value
+    when "useMapLevelForWildPokemon"
+      @@settings[:use_map_level_for_wild_pokemon] = value
     end
   end
 
@@ -126,7 +149,8 @@ class AutomaticLevelScaling
     second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
     only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER,
     only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
-    save_trainer_parties: LevelScalingSettings::SAVE_TRAINER_PARTIES
+    save_trainer_parties: LevelScalingSettings::SAVE_TRAINER_PARTIES,
+    use_map_level_for_wild_pokemon: LevelScalingSettings::USE_MAP_LEVEL_FOR_WILD_POKEMON
   )
     @@settings[:temporary] = temporary
     @@settings[:update_moves] = update_moves
@@ -140,6 +164,7 @@ class AutomaticLevelScaling
     @@settings[:only_scale_if_higher] = only_scale_if_higher
     @@settings[:only_scale_if_lower] = only_scale_if_lower
     @@settings[:save_trainer_parties] = save_trainer_parties
+    @@settings[:use_map_level_for_wild_pokemon] = use_map_level_for_wild_pokemon
   end
 
   def self.setNewLevel(pokemon, difference_from_average = 0)
