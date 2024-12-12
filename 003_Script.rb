@@ -18,9 +18,6 @@ class AutomaticLevelScaling
     only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
     update_moves: true
   }
-  def self.settings
-    return @@settings
-  end
 
   def self.difficulty=(id)
     if LevelScalingSettings::DIFFICULTIES[id] == nil
@@ -28,6 +25,10 @@ class AutomaticLevelScaling
     else
       @@selected_difficulty = LevelScalingSettings::DIFFICULTIES[id]
     end
+  end
+
+  def self.settings
+    return @@settings
   end
 
   def self.getScaledLevel
@@ -46,35 +47,11 @@ class AutomaticLevelScaling
     return level
   end
 
-  def self.setNewLevel(pokemon, difference_from_average = 0)
-    new_level = AutomaticLevelScaling.getScaledLevel
-
-    # Proportional scaling
-    if @@settings[:proportional_scaling]
-      new_level += difference_from_average
-      new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
-    end
-
-    pokemon.scale(new_level)
-  end
-
   def self.shouldScaleLevel?(previous_level, new_level)
     # Checks for only_scale_if_higher and only_scale_if_lower
     return false if @@settings[:only_scale_if_higher] && previous_level > new_level
     return false if @@settings[:only_scale_if_lower] && previous_level < new_level
     return true
-  end
-
-  def self.setNewStage(pokemon)
-    pokemon.scaleEvolutionStage
-  end
-
-  def self.getPossibleEvolutions(pokemon)
-    return pokemon.getPossibleEvolutions
-  end
-
-  def self.getEvolutionLevel(pokemon, possible_evolutions, evolution_stage)
-    return pokemon.getEvolutionLevel(evolution_stage == 0)
   end
 
   def self.setTemporarySetting(setting, value)
@@ -84,7 +61,8 @@ class AutomaticLevelScaling
       if !value.is_a?(Integer)
         raise _INTL("\"{1}\" requires an integer value, but {2} was provided.", setting, value)
       end
-    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages", "includeNextStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
+    when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages",
+        "includeNextStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
       if !(value.is_a?(FalseClass) || value.is_a?(TrueClass))
         raise _INTL("\"{1}\" requires a boolean value, but {2} was provided.", setting, value)
       end
@@ -145,5 +123,29 @@ class AutomaticLevelScaling
     @@settings[:include_next_stages] = include_next_stages
     @@settings[:only_scale_if_higher] = only_scale_if_higher
     @@settings[:only_scale_if_lower] = only_scale_if_lower
+  end
+
+  def self.setNewLevel(pokemon, difference_from_average = 0)
+    new_level = AutomaticLevelScaling.getScaledLevel
+
+    # Proportional scaling
+    if @@settings[:proportional_scaling]
+      new_level += difference_from_average
+      new_level = new_level.clamp(1, GameData::GrowthRate.max_level)
+    end
+
+    pokemon.scale(new_level)
+  end
+
+  def self.setNewStage(pokemon)
+    pokemon.scaleEvolutionStage
+  end
+
+  def self.getPossibleEvolutions(pokemon)
+    return pokemon.getPossibleEvolutions
+  end
+
+  def self.getEvolutionLevel(pokemon, possible_evolutions, evolution_stage)
+    return pokemon.getEvolutionLevel(evolution_stage == 0)
   end
 end

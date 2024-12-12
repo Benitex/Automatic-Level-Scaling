@@ -44,7 +44,7 @@ Credits      = Benitex, Joltik, Umbreon
 # 
 # There are three pre-defined difficulties, but you can add your own new ones by using the function 
 # "Difficulty.new(random_increase, fixed_increase)" in the DIFFICULTIES Hash in `Settings.rb`.
-#   "fixed_increase" is a pre-defined value that increases the pokemon level
+#   "fixed_increase" is a pre defined value that is always added to the level avarage
 #   "random_increase" is a randomly selected value between 0 and the value provided
 # Note that these variables can also store negative values. 
 # Setting them to 0 would have the same effect of calling "pbBalancedLevel($player.party)" 

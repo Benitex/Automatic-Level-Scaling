@@ -10,7 +10,7 @@ module LevelScalingSettings
   WILD_VARIABLE = 100
 
   # You can add your own difficulties in the following Hash, using the constructor "Difficulty.new(fixed_increase, random_increase)"
-  #   "fixed_increase" is a pre defined value that increases the level
+  #   "fixed_increase" is a pre defined value that is always added to the level avarage
   #   "random_increase" is a randomly selected value between 0 and the value provided
   # Each difficulty has an index in the Hash, which represents the difficulty
   # You can change the active difficulty by updating TRAINER_VARIABLE or WILD_VARIABLE according to these indexes
@@ -23,7 +23,7 @@ module LevelScalingSettings
   }
 
   # Scales levels but takes original level differences into consideration
-  # Don't forget to set random_increase values to 0 when using this setting
+  # (Don't forget to also set random_increase values to 0 when using this setting)
   PROPORTIONAL_SCALING = false
 
   # You can use the following to disable level scaling in any condition other then the selected below
@@ -35,8 +35,8 @@ module LevelScalingSettings
   INCLUDE_NEXT_STAGES = true      # If false, stops evolution at the species used in the function call (or defined in the PBS)
 
   INCLUDE_NON_NATURAL_EVOLUTIONS = true # Evolve all pokemon, even if it only evolves by a non natural method
-  # Evolutions that don't use the methods of this array won't be considered if INCLUDE_NON_NATURAL_EVOLUTIONS is false
-  # All other conditions other than level for these evolutions are ignored
+  # If INCLUDE_NON_NATURAL_EVOLUTIONS is false, the script will only consider evolutions that use the methods in the NATURAL_EVOLUTION_METHODS array
+  # (All conditions other than level for these evolutions are ignored)
   NATURAL_EVOLUTION_METHODS = [
     :Level,
     :LevelMale, :LevelFemale,

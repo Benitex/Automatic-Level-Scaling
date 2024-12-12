@@ -1,6 +1,6 @@
 # Automatic Level Scaling
 
-This Pokemon Essentials v21, v20 and v19 plugin will change wild and trainer pokemon levels according to the party pokemon levels. These pokemon are also going to evolve automatically depending on their level. You can choose between 5 initial difficulty options, but you can also easily create your difficulty options. All these features can also be disabled if you wish.
+This Pokemon Essentials v21, v20 and v19 plugin will change wild and trainer pokemon levels according to the party pokemon levels. These pokemon are also going to evolve automatically depending on their level. You can choose between 5 initial difficulty options, or easily create your own difficulty options. All these features can also be disabled if you wish.
 
 ## Installation
 
@@ -32,7 +32,7 @@ Whenever you find a field where you should insert a pokemon level (except for PB
 
 There are some pre-defined difficulties, but you can add your own new ones by using the function `Difficulty.new(fixed_increase:, random_increase:)` in the DIFFICULTIES Hash in `Settings.rb`.
 
-* `fixed_increase` is a pre-defined value that increases the pokemon level
+* `fixed_increase` is a pre defined value that is always added to the level avarage
 * `random_increase` is a randomly selected value between 0 and the value provided
 
 Note that these variables can also store negative values. Setting them to 0 would have the same effect as calling `pbBalancedLevel($player.party)` and removing two from the average.
