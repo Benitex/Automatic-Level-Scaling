@@ -16,6 +16,7 @@ class AutomaticLevelScaling
     proportional_scaling: LevelScalingSettings::PROPORTIONAL_SCALING,
     only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER,
     only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
+    save_trainer_parties: LevelScalingSettings::SAVE_TRAINER_PARTIES,
     update_moves: true
   }
 
@@ -54,6 +55,18 @@ class AutomaticLevelScaling
     return true
   end
 
+  def self.battledTrainer?(trainer_id)
+    return $PokemonGlobal.previous_trainer_parties.has_key?(trainer_id)
+  end
+
+  def self.scaleToPreviousTrainerParty(trainer)
+    trainer.party = $PokemonGlobal.previous_trainer_parties[trainer.key]
+  end
+
+  def self.savePreviousTrainerParty(trainer_key, party)
+    $PokemonGlobal.previous_trainer_parties[trainer_key] = party
+  end
+
   def self.setTemporarySetting(setting, value)
     # Parameters validation
     case setting
@@ -62,7 +75,7 @@ class AutomaticLevelScaling
         raise _INTL("\"{1}\" requires an integer value, but {2} was provided.", setting, value)
       end
     when "updateMoves", "automaticEvolutions", "includeNonNaturalEvolutions", "includePreviousStages",
-        "includeNextStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower"
+        "includeNextStages", "proportionalScaling", "onlyScaleIfHigher", "onlyScaleIfLower", "saveTrainerParties"
       if !(value.is_a?(FalseClass) || value.is_a?(TrueClass))
         raise _INTL("\"{1}\" requires a boolean value, but {2} was provided.", setting, value)
       end
@@ -96,6 +109,8 @@ class AutomaticLevelScaling
       @@settings[:only_scale_if_higher] = value
     when "onlyScaleIfLower"
       @@settings[:only_scale_if_lower] = value
+    when "saveTrainerParties"
+      @@settings[:save_trainer_parties] = value
     end
   end
 
@@ -110,7 +125,8 @@ class AutomaticLevelScaling
     first_evolution_level: LevelScalingSettings::DEFAULT_FIRST_EVOLUTION_LEVEL,
     second_evolution_level: LevelScalingSettings::DEFAULT_SECOND_EVOLUTION_LEVEL,
     only_scale_if_higher: LevelScalingSettings::ONLY_SCALE_IF_HIGHER,
-    only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER
+    only_scale_if_lower: LevelScalingSettings::ONLY_SCALE_IF_LOWER,
+    save_trainer_parties: LevelScalingSettings::SAVE_TRAINER_PARTIES
   )
     @@settings[:temporary] = temporary
     @@settings[:update_moves] = update_moves
@@ -123,6 +139,7 @@ class AutomaticLevelScaling
     @@settings[:include_next_stages] = include_next_stages
     @@settings[:only_scale_if_higher] = only_scale_if_higher
     @@settings[:only_scale_if_lower] = only_scale_if_lower
+    @@settings[:save_trainer_parties] = save_trainer_parties
   end
 
   def self.setNewLevel(pokemon, difference_from_average = 0)

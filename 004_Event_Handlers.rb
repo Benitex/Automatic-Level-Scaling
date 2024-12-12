@@ -20,6 +20,11 @@ EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
     next if !trainer || id == 0
     AutomaticLevelScaling.difficulty = id
 
+    if AutomaticLevelScaling.settings[:save_trainer_parties] && AutomaticLevelScaling.battledTrainer?(trainer.key)
+      AutomaticLevelScaling.scaleToPreviousTrainerParty(trainer)
+      next
+    end
+
     avarage_level = 0
     trainer.party.each { |pokemon| avarage_level += pokemon.level }
     avarage_level /= trainer.party.length
@@ -31,6 +36,10 @@ EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
       else
         pokemon.scale
       end
+    end
+
+    if AutomaticLevelScaling.settings[:save_trainer_parties]
+      AutomaticLevelScaling.savePreviousTrainerParty(trainer.key, trainer.party)
     end
   }
 )

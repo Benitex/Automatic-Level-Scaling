@@ -57,6 +57,7 @@ You can use the function `AutomaticLevelScaling.setTemporarySetting(setting, val
 | secondEvolutionLevel | Select the level required for pokemon that don't evolve by level up to get to their final form. |
 | onlyScaleIfHigher | When true, the script will only scale levels if the player is over-leveled. |
 | onlyScaleIfLower | When true, the script will only scale levels if the player is under-leveled. |
+| saveTrainerParties | When true, trainer parties will keep the same pokemon and levels of the first battle. (If the player gets defeated, the party will not be scaled again) |
 | temporary | Restores all settings to their default values after the next battle. Only possible in `setSettings` because `setTemporarySetting` enables this by default. |
 
 **Warning**: `setTemporarySetting` uses camelCase for parameters and `setSettings` uses underscore_case.

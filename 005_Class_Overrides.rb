@@ -108,3 +108,10 @@ class Pokemon
     return possible_evolutions
   end
 end
+
+class PokemonGlobalMetadata
+  def previous_trainer_parties
+    @previous_trainer_parties = {} if !@previous_trainer_parties
+    return @previous_trainer_parties
+  end
+end

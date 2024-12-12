@@ -22,6 +22,8 @@ module LevelScalingSettings
     5 => Difficulty.new(fixed_increase: -2, random_increase: 5),  # Standard Essentials
   }
 
+  SAVE_TRAINER_PARTIES = true  # Trainer parties will keep the same pokemon and levels of the first battle
+
   # Scales levels but takes original level differences into consideration
   # (Don't forget to also set random_increase values to 0 when using this setting)
   PROPORTIONAL_SCALING = false
