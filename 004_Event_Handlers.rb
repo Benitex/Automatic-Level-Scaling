@@ -27,13 +27,11 @@ EventHandlers.add(:on_trainer_load, :automatic_level_scaling,
 
     if AutomaticLevelScaling.settings[:save_trainer_parties] && AutomaticLevelScaling.battledTrainer?(trainer.key)
       AutomaticLevelScaling.scaleToPreviousTrainerParty(trainer)
+      trainer.heal_party
       next
     end
 
-    avarage_level = 0
-    trainer.party.each { |pokemon| avarage_level += pokemon.level }
-    avarage_level /= trainer.party.length
-
+    avarage_level = trainer.party_avarage_level
     for pokemon in trainer.party do
       if AutomaticLevelScaling.settings[:proportional_scaling]
         difference_from_average = pokemon.level - avarage_level
