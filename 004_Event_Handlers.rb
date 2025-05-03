@@ -75,5 +75,10 @@ Events.onEndBattle += proc { |_sender, e|
 Events.onMapChange += proc { |_sender, e|
   next if !AutomaticLevelScaling.settings[:use_map_level_for_wild_pokemon]
   next if $PokemonGlobal.map_levels.has_key?($game_map.map_id)
+
+  id = pbGet(LevelScalingSettings::WILD_VARIABLE)
+  next if id == 0
+  AutomaticLevelScaling.difficulty = id
+
   $PokemonGlobal.map_levels[$game_map.map_id] = AutomaticLevelScaling.getScaledLevel
 }
