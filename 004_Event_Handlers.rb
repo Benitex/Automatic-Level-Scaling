@@ -82,6 +82,11 @@ EventHandlers.add(:on_enter_map, :define_map_level,
   proc { |old_map_id|
     next if !AutomaticLevelScaling.settings[:use_map_level_for_wild_pokemon]
     next if $PokemonGlobal.map_levels.has_key?($game_map.map_id)
+
+    id = pbGet(LevelScalingSettings::WILD_VARIABLE)
+    next if id == 0
+    AutomaticLevelScaling.difficulty = id
+
     $PokemonGlobal.map_levels[$game_map.map_id] = AutomaticLevelScaling.getScaledLevel
   }
 )
